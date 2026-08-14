@@ -49,7 +49,7 @@
 
 ---
 
-### Day 3 — Arrays & Functions Revision ✅
+### Day 3 — Arrays & Functions 
 
 * PHP Functions revision
 * Function parameters
