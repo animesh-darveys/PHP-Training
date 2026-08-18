@@ -100,7 +100,7 @@ echo "<br />";
 
 // 8. strpos() — String mein position find
 
-$message = "Hello Animesh";
+$message = "Hello Animesh";  
 
 echo strpos($message, "Animesh");
 
