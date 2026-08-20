@@ -83,40 +83,50 @@ $totalEmployees = count($employees);
 
 // echo "<br />";
 
-for ($i = 0; $i < $totalEmployees; $i++) {
-    echo "Employee " . ($i + 1) . ": " . $employees[$i] . "<br>";
-}
+// for ($i = 0; $i < $totalEmployees; $i++) {
+//     echo "Employee " . ($i + 1) . ": " . $employees[$i] . "<br>";
+// }
 
-echo "<br />";
+// echo "<br />";
 
-for ($i = 0; $i < $totalEmployees; $i++) {
-    // if ($i == 3) break;
-    echo "Employee " . ($i + 1) . ": " . $employees[$i] . "<br>";
-}
+// for ($i = 0; $i < $totalEmployees; $i++) {
+//     // if ($i == 3) break;
+//     echo "Employee " . ($i + 1) . ": " . $employees[$i] . "<br>";
+// }
 
-for ($i = 0; $i < $totalEmployees; $i++) {
-    if ($i == 3) continue;
-    echo "Employee " . ($i + 1) . ": " . $employees[$i] . "<br>";
-}
+// for ($i = 0; $i < $totalEmployees; $i++) {
+//     if ($i == 3) continue;
+//     echo "Employee " . ($i + 1) . ": " . $employees[$i] . "<br>";
+// }
 
-echo "<br />";
+// echo "<br />";
 
-foreach ($employees as $employee) { 
-    echo "Employee: " . $employee . "<br>";
-}
+// foreach ($employees as $employee) { 
+//     echo "Employee: " . $employee . "<br>";
+// }
 
 
-echo "<br />";
-echo"<b>While Loop Implementaion :</b>";
-echo "<br />";
+// echo "<br />";
+// echo"<b>While Loop Implementaion :</b>";
+// echo "<br />";
+// $i = 0;
+
+// while ($i < $totalEmployees) {
+//     if ($i == 2) {
+//         $i++;
+//         continue;
+//     }
+//     echo "Employee: " . $employees[$i] . "<br>";
+
+//     $i++;
+// }
+
+
+
 $i = 0;
 
-while ($i < $totalEmployees) {
-    if ($i == 2) {
-        $i++;
-        continue;
-    }
-    echo "Employee: " . $employees[$i] . "<br>";
+$a = $i++;
+$b= ++$i;
 
-    $i++;
-}
+echo $a."<br />";
+echo $b;

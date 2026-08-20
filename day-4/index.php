@@ -10,7 +10,7 @@
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-$employeeName = trim($_POST["employee_name"] ?? "");
+    $employeeName = trim($_POST["employee_name"] ?? "");
     $employeeDepartment = trim($_POST["employee_department"] ?? "");
     $employeeSalary = trim($_POST["employee_salary"] ?? "");
 

@@ -23,3 +23,9 @@ echo "Student Name: " . $studentName . "<br>";
 echo "Total Marks: " . $totalMarks . "<br>";
 echo "Average Marks: " . $averageMarks . "<br>";
 echo "Remaining Balance: " . $remainingBalance . "<br>";
+
+$remaining = $totalFees - $feesPaid;
+
+$remain_fee_percentage = ($remaining/$totalFees)*100;
+
+echo $remain_fee_percentage."%";
