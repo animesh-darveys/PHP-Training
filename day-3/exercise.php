@@ -9,26 +9,32 @@ function processStudentResults($students)
 
     foreach ($students as $student) {
 
+        // Student ka naam
+        $name = $student["name"];
+
+        // Student ke marks
+        $marks = $student["marks"];
+
+        // Total calculate
         $total = 0;
 
-        // Calculate total manually
-        foreach ($student["marks"] as $mark) {
+        foreach ($marks as $mark) {
             $total = $total + $mark;
         }
 
-        // Calculate average
-        $average = $total / 3;
+        // Average calculate
+        $average = $total / count($marks);
 
-        // Pass/Fail
+        // Pass / Fail
         if ($average >= 40) {
             $status = "Pass";
         } else {
             $status = "Fail";
         }
 
-        // Add result
+        // Result array mein add karo
         $results[] = [
-            "name" => $student["name"],
+            "name" => $name,
             "total" => $total,
             "average" => $average,
             "status" => $status
