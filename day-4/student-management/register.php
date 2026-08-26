@@ -1,85 +1,10 @@
 <?php
-$studentName = "";
-$studentEmail = "";
-$studentDOB = "";
-$studentCourse = "";
-$studentImage = "";
-
-$errors = [];
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-
-    $studentName = trim($_POST["student_name"] ?? "");
-    $studentEmail = trim($_POST["email"] ?? "");
-    $studentDOB = trim($_POST["dob"] ?? "");
-    $studentCourse = trim($_POST["course"] ?? "");
-    $studentImage = $_FILES["photo"] ?? null;
-
-    $allowedCourses = [
-        "web-development",
-        "data-science",
-        "cyber-security"
-    ];
-
-        // Validate Student name
-    if (empty($_POST["student_name"])) {
-        $errors["studentName"] = "Student name is required.";
-    } elseif (strlen($studentName) < 3) {
-        $errors["studentName"] = "Student name should be greater then 3 charachter.";
-    }
-
-    // Validate Email
-    if (empty($_POST["email"])) {
-        $errors["studentEmail"] = "Email is required.";
-    } elseif (!filter_var($studentEmail, FILTER_VALIDATE_EMAIL)) {
-        $errors["studentEmail"] = "Please enter a valid email address.";
-    }
-
-    // Validate DOB
-    if (empty($_POST["dob"])) {
-        $errors["studentDOB"] = "DOB is required.";
-    } else {
-
-        $dob = DateTime::createFromFormat("!Y-m-d", $studentDOB);
-
-        if (
-            $dob === false ||
-            $dob->format("Y-m-d") !== $studentDOB
-        ) {
-            $errors["studentDOB"] = "Please enter a valid DOB.";
-        } elseif ($dob > new DateTime("today")) {
-            $errors["studentDOB"] = "DOB cannot be in the future.";
-        } else {
-
-            $today = new DateTime("today");
-            $minimumAgeDate = (clone $today)->modify("-3 years");
-
-            if ($dob > $minimumAgeDate) {
-                $errors["studentDOB"] = "Student must be at least 3 years old to enroll.";
-            }
-        }
-    }
-
-    if (empty($_POST["course"])) {
-        $errors["studentCourse"] = "Please select a course.";
-    } elseif (!in_array($studentCourse, $allowedCourses, true)) {
-        $errors["studentCourse"] = "Invalid course selected.";
-    }
-    
-    if (
-        !isset($_FILES["photo"]) ||
-        $_FILES["photo"]["error"] === UPLOAD_ERR_NO_FILE
-    ) {
-        $errors["studentImage"] = "Please select an image.";
-    }
-
-    if (empty($errors)) {
-      $success = "Student form submitted successfully.";
-    }
+session_start();
+require_once "services/register-service.php";
+if (empty($_SESSION["csrf_token"])) {
+    $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 }
-
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -99,10 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <div class="container" style="max-width: 600px;">
 
-        <!-- PHP: show once, from session flash (Day 9) or a $success flag -->
-        <!-- <div class="alert alert-success">Student registered successfully.</div> -->
         <?php if (!empty($success)): ?>
-
             <div class="alert alert-success">
                 <?= htmlspecialchars($success) ?>
             </div>
@@ -114,11 +36,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 <form method="POST" action="" enctype="multipart/form-data" novalidate>
 
-                    <!-- PHP (Day 9): <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"> -->
-
+                    
+                   <input type="hidden"
+           name="csrf_token"
+           value="<?= htmlspecialchars($_SESSION["csrf_token"]) ?>">
+                   <?php /* */?>
+                    
                     <div class="mb-3">
                         <label class="form-label">Full Name</label>
-                        <input type="text" class="form-control" name="student_name"
+                        <input type="text" class="form-control" name="name"
                             value="<?= htmlspecialchars($studentName) ?>" required>
                         <div class="invalid-feedback d-block text-danger small">
 
@@ -179,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Profile Photo (Day 6)</label>
+                        <label class="form-label">Profile Photo</label>
                         <input type="file" class="form-control" name="photo" accept="image/*">
                         <div class="invalid-feedback d-block text-danger small">
                             <?php if (isset($errors["studentImage"])): ?>
@@ -193,10 +119,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </div>
 
-        <!-- <p class="text-center mt-3">
-            <a href="students_list.html">View all students</a>
-            <a href="login.html">Login</a>
-        </p> -->
+        <p class="text-center mt-3">
+            <a href="student_list.php">View all students</a>
+            <a href="login.php">Login</a>
+        </p>
     </div>
 </body>
 
