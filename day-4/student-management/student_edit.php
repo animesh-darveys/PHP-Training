@@ -47,8 +47,7 @@
           <!-- PHP (Day 9): <input type="hidden" name="csrf_token" value="..."> -->
 
           <div class="mb-3 text-center">
-            <img src="https://via.placeholder.com/80" class="rounded-circle mb-2" alt="current photo">
-            <!-- PHP: src="uploads/students/<?php echo htmlspecialchars($student['photo']); ?>" -->
+            <img src="<?= htmlspecialchars($result->profile_photo) ?>" width="80" height="80" style="object-fit: cover;" alt="photo" class="rounded-circle mb-2">
           </div>
 
           <div class="mb-3">
@@ -89,7 +88,7 @@
           </select>
 
           </div>
-
+          
           <div class="mb-3">
             <label class="form-label">Replace Photo (optional)</label>
             <input type="file" class="form-control" name="photo" accept="image/*">
