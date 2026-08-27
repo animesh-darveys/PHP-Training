@@ -42,8 +42,8 @@
 
             $result = $stmt->fetch(PDO::FETCH_OBJ);
         ?>
-        <form method="POST" action="" enctype="multipart/form-data" novalidate>
-          <!-- PHP: <input type="hidden" name="id" value="<?php echo $student['id']; ?>"> -->
+        <form method="POST" action="services/student-update-service" enctype="multipart/form-data" novalidate>
+          <input type="hidden" name="student_id" value="<?php echo $result->id; ?>">
           <!-- PHP (Day 9): <input type="hidden" name="csrf_token" value="..."> -->
 
           <div class="mb-3 text-center">
@@ -94,7 +94,7 @@
             <input type="file" class="form-control" name="photo" accept="image/*">
           </div>
 
-          <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+          <button type="submit" class="btn btn-primary w-100" name="student-update-btn">Save Changes</button>
         </form>
       </div>
     </div>
