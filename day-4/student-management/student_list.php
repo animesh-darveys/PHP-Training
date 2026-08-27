@@ -1,19 +1,43 @@
 <?php
 require_once "config/database.php";
-// $course = $_GET['course'] ?? '';
 
+session_start();
+
+$course = $_GET["course"] ?? "";
+if($course){
+echo $course;
+}else{
+echo "no course";
+
+}
+
+
+if($course){
+$read_sql = "SELECT * FROM students WHERE course = :course ORDER BY created_at DESC";
+$stmt_select = $conn->prepare($read_sql);
+
+$stmt_select->execute([
+    ':course' => $course
+]);
+
+} else{
 $read_sql = "SELECT * FROM students ORDER BY created_at DESC";
-// $read_sql = "SELECT * FROM students where course = :course";
-
 $stmt_select = $conn->prepare($read_sql);
 
 $stmt_select->execute();
-// $stmt_select->execute([
-//     ':course' => $course
-// ]);
+}
+
+
+
 
 
 $students = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
+
+// echo "<pre>";
+// print_r($_GET);
+// echo "</pre>";
+
+
 
 
 ?>
@@ -50,15 +74,28 @@ $students = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
       <div class="col-md-4">
         <select class="form-select" name="course">
           <option value="">All Courses</option>
-          <option value="web-development">Web Development</option>
-          <option value="data-science">Data Science</option>
-          <option value="cyber-security">Cyber Security</option>
+          <option value="web-development" <?= $course === "web-development" ? 'selected' : '' ?>>Web Development</option>
+          <option value="data-science" <?= $course === "data-science" ? 'selected' : '' ?>>Data Science</option>
+          <option value="cyber-security" <?= $course === "cyber-security" ? 'selected' : '' ?>>Cyber Security</option>
         </select>
       </div>
       <div class="col-md-3">
-        <button type="submit" class="btn btn-secondary w-100">Filter</button>
+        <button type="submit" name="filter-btn" class="btn btn-secondary w-100">Filter</button>
       </div>
     </form>
+    <?php if (isset($_SESSION['message'])) : ?>
+        <h5 class="alert alert-success" id="successMessage"><?php echo $_SESSION['message']; ?></h5>
+        <?php unset($_SESSION['message']); ?>
+        <script>
+            setTimeout(() => {
+                const message = document.getElementById('successMessage');
+
+                if (message) {
+                    message.style.display = 'none';
+                }
+            }, 5000);
+        </script>
+    <?php endif; ?>
 
     <table class="table table-bordered bg-white align-middle">
       <thead class="table-dark">
@@ -81,8 +118,9 @@ $students = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
           <td><?= $student["dob"] ?></td>
           <td>
             <a href="student_edit.php?id=<?= $student["id"] ?>" class="btn btn-sm btn-outline-primary">Edit</a>
-            <form method="POST" action="delete_student.php" class="d-inline">
-              <button type="submit" class="btn btn-sm btn-outline-danger"
+            <form method="POST" action="services/delete_student.php" class="d-inline">
+              <input type="hidden" name="id" value="<?= $student["id"] ?>" />
+              <button type="submit" class="btn btn-sm btn-outline-danger" name="student-delete-btn"
                       onclick="return confirm('Delete this student?');">Delete</button>
             </form>
           </td>
