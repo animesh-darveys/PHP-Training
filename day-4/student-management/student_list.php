@@ -30,6 +30,7 @@ if (count($conditions) > 0) {
     $count_sql .= " WHERE " . implode(" AND ", $conditions);
 }
 
+// print_r($conditions);
 $stmt_count = $conn->prepare($count_sql);
 $stmt_count->execute($params);
 
