@@ -19,7 +19,8 @@ class school{
 $school = new school();
 $school->management();
 echo "<br>";
-// $school->finance();
+// Getting error here
+// $school->finance(); 
 echo "<br>";
 $school->studentFee();
 
