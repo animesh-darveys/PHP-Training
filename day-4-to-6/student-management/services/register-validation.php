@@ -49,18 +49,13 @@ function validateStudent(
 
         $dob = DateTime::createFromFormat("!Y-m-d", $studentDOB);
 
-        if (
-            $dob === false ||
-            $dob->format("Y-m-d") !== $studentDOB
-        ) {
+        if ($dob === false || $dob->format("Y-m-d") !== $studentDOB) {
 
-            $errors["studentDOB"] =
-                "Please enter a valid DOB.";
+            $errors["studentDOB"] = "Please enter a valid DOB.";
 
         } elseif ($dob > new DateTime("today")) {
 
-            $errors["studentDOB"] =
-                "DOB cannot be in the future.";
+            $errors["studentDOB"] ="DOB cannot be in the future.";
         }
     }
 
