@@ -8,7 +8,7 @@ $students = [
         "name" => "Rahul",
         "maths" => 78,
         "english" => 85,
-        "science" => 72
+        "science" => 72,
     ],
     [
         "name" => "Aman",
@@ -30,8 +30,17 @@ $students = [
     ]
 ];
 
-foreach($students as &$student){
+$length = count($students); 
 
+for($i=0; $i<$length; $i++){
+    $students[$i]["age"] = 30;
+}
+
+print_r($students);
+
+
+
+foreach($students as &$student){
     $total_marks = 0;
     $name = $student["name"];
     $maths_marks = $student["maths"];
@@ -42,6 +51,8 @@ foreach($students as &$student){
 
     $avg = number_format($total_marks/3, 2);
 
+    // TODO Need to understand the match function!
+
     $status = match (true) {
         $maths_marks < 40 => "Fail",
         $english_marks < 40 => "Fail",
@@ -49,12 +60,15 @@ foreach($students as &$student){
         default => "Pass"
     };
 
+
     // echo "Total marks of ".$name." is ".$total_marks." and avarage is ".$avg."<br>";
 
     $student["total_marks"] = $total_marks;
     $student["avg"] = $avg;
     $student["status"] = $status;
+
 }
+
 
 unset($student); 
 

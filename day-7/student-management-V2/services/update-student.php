@@ -11,7 +11,7 @@
 
     if(isset($_POST["student-update-btn"])){
         $studentId = $_POST['student_id'];
-        $name = $_POST['student_name'];
+        $name = $_POST['name'];
         $email = $_POST['email'];
         $dob = $_POST['dob'];
         $course = $_POST['course'];

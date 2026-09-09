@@ -17,11 +17,15 @@ class school{
     }
 }
 $school = new school();
+
 $school->management();
+
 echo "<br>";
-// Getting error here
+
 // $school->finance(); 
+
 echo "<br>";
+
 $school->studentFee();
 
 class student extends school {
@@ -31,6 +35,7 @@ class student extends school {
         $this->studentResult();
     }
 }
+
 $student = new student();
 $student->management();
 echo "<br>";
