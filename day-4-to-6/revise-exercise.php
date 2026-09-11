@@ -217,6 +217,8 @@ $string = new StringUtils();
 
 function sanitizeFormData($data, $string){
 
+//    global $string;
+
    $cleanData = [];
 
    foreach($data as $key=>$value){

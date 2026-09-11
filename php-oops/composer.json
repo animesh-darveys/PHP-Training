@@ -1,0 +1,15 @@
+{
+    "name": "anime/php-oops",
+    "autoload": {
+        "psr-4": {
+            "Anime\\PhpOops\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "animesh-darveys",
+            "email": "animesh.gupta@darveys.com"
+        }
+    ],
+    "require": {}
+}
