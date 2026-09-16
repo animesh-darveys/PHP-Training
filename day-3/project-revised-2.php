@@ -2,17 +2,17 @@
 $students = [
     [
         "name" => "Rahul",
-        "marks"=>[
+        "marks" => [
             "maths" => 78,
             "english" => 85,
             "science" => 72,
             "physics" => 99,
             "Computer" => 75
-        ]        
+        ]
     ],
     [
         "name" => "Aman",
-        "marks"=>[
+        "marks" => [
             "maths" => 39,
             "english" => 74,
             "science" => 80,
@@ -22,7 +22,7 @@ $students = [
     ],
     [
         "name" => "Priya",
-        "marks"=>[
+        "marks" => [
             "maths" => 92,
             "english" => 88,
             "science" => 95,
@@ -32,7 +32,7 @@ $students = [
     ],
     [
         "name" => "Neha",
-        "marks"=>[
+        "marks" => [
             "maths" => 55,
             "english" => 84,
             "science" => 88,
@@ -44,82 +44,75 @@ $students = [
 
 // match, array, and foreach in details.
 
-foreach ($students as $index => $student) {
-    $total_marks = 0;
-    $students_marks = $student["marks"];
-    $subjects = count($students_marks);
-    $status = "Pass";
 
-    foreach($students_marks as $mark){
+$students = calculateStudentData($students);
 
-        $total_marks = $total_marks + $mark;
+function calculateStudentData($students = array())
+{
+    foreach ($students as $index => $student) {
+        $total_marks = 0;
+        $students_marks = $student["marks"];
+        $subjects = count($students_marks);
+        $status = "Pass";
 
-        if($mark<40){
-            $status = "Fail";
+        foreach ($students_marks as $mark) {
+            $total_marks = $total_marks + $mark;
         }
 
+        $percentage = ($total_marks / ($subjects * 100)) * 100;
+        //on the basis of the percenctage mark pass or fail id percentage > 40 then it should be pass
+        $status = $percentage >= 40 ? "Pass" : "Fail";
+        $students[$index]["total_marks"] = $total_marks;
+        $students[$index]["percentage"] = $percentage;
+        $students[$index]["status"] = $status;
     }
 
-    $avg = number_format($total_marks / $subjects , 2);
-
-    $students[$index]["total_marks"] = $total_marks;
-    $students[$index]["avg"] = $avg;
-    $students[$index]["status"] = $status;
-
-}
-
-$n = count($students);
-
-for ($i = 0; $i < $n; $i++) {
-
-    for ($j = 0; $j < $n - 1; $j++) {
-
-        if ($students[$j]["total_marks"] <  $students[$j + 1]["total_marks"]) {
-
-            $temp = $students[$j];
-            $students[$j] = $students[$j + 1];
-            $students[$j + 1] = $temp;
+    $n = count($students);
+    // Two Pointer 
+    for ($i = 0; $i < $n; $i++) {
+        for ($j = $i + 1; $j < $n; $j++) {
+            if ($students[$j]["percentage"] > $students[$i]["percentage"]) {
+                $temp = $students[$i];
+                $students[$i] = $students[$j];
+                $students[$j] = $temp;
+            }
         }
     }
-}
 
-foreach ($students as $index => $student) {
-    $students[$index]["rank"] = $index + 1;
+    return $students;
 }
 
 echo "<h2>Student Results</h2>";
 
 echo "<table border='1' cellpadding='8' cellspacing='0'>";
-echo "<tr>";
 
-foreach ($students[0] as $key => $value) {
-
-    if (is_array($value)) {
-
-        foreach ($value as $subKey => $subValue) {
-            echo "<th>" . htmlspecialchars(ucfirst($subKey)) . "</th>";
-        }
-
-    } else {
-
-        echo "<th>" . htmlspecialchars(ucfirst(str_replace("_"," ", $key))) . "</th>";
-
-    }
-}
-echo "</tr>";
-
+$headingRenderStautus = false;
 foreach ($students as $student) {
 
+
+    if (!$headingRenderStautus) {
+        echo "<tr>";
+        foreach ($student as $key => $value) {
+            $headingRenderStautus = true;
+            //heading parts need to run only once
+            if (is_array($value)) {
+                foreach ($value as $subKey => $subValue) {
+                    echo "<th>" . htmlspecialchars(ucfirst($subKey)) . "</th>";
+                }
+            } else {
+                echo "<th>" . htmlspecialchars(ucfirst(str_replace("_", " ", $key))) . "</th>";
+            }
+        }
+        echo "<tr>";
+    }
+
     echo "<tr>";
-
     foreach ($student as $key => $value) {
-
         if (is_array($value)) {
 
             foreach ($value as $subKey => $subValue) {
                 echo "<td>" . htmlspecialchars($subValue) . "</td>";
             }
-
         } else {
 
             echo "<td>" . htmlspecialchars($value) . "</td>";
@@ -131,8 +124,11 @@ foreach ($students as $student) {
 
 echo "</table>";
 
-// $json = json_encode($students, JSON_PRETTY_PRINT);
-
-// echo "<pre>";
-// print_r($json);
-// echo "</pre>";
+if (!empty($students)) {
+    $json = json_encode($students, JSON_PRETTY_PRINT);
+    echo "<pre>";
+    print_r($json);
+    echo "</pre>";
+} else {
+    echo "NO RECORD FOUND";
+}

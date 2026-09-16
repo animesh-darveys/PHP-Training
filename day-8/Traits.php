@@ -1,6 +1,7 @@
 <?php
 // Define a trait
 trait Authentication {
+    abstract public function greeting();
     public function login($name) {
         echo "Logged in successfully. Hurray! {$name} ";
     }
@@ -13,18 +14,30 @@ trait Authentication {
 // Use the trait in a class
 class Admin {
     use Authentication;
+    public function greeting(){
+        echo "Good Morning";
+    }
 }
 
 class Staff {
     use Authentication;
+    public function greeting(){
+        echo "Good Morning";
+    }
 }
 
 class client {
     use Authentication;
+    public function greeting(){
+        echo "Good Morning";
+    }
 }
 
 class customer {
     use Authentication;
+    public function greeting(){
+        echo "Good Morning";
+    }
 }
 
 echo "<br />";
