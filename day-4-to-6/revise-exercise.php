@@ -49,6 +49,7 @@ class StringUtils{
     }
 
     function downcase($text){
+        $text = $this->trimText($text);
         $length = $this->length($text);
         $result = "";
         for($i = 0; $i < $length; $i++){
@@ -66,10 +67,10 @@ class StringUtils{
 
         return $result;
 
-
     }
 
         function upcase($text){
+        $text = $this->trimText($text);
         $length = $this->length($text);
         $result = "";
         for($i = 0; $i < $length; $i++){
@@ -121,46 +122,47 @@ class StringUtils{
 
     }
     function stripText($text)    {
+        $text = $this->trimText($text);
         $length = $this->length($text);
         $result = "";
 
         for ($i = 0; $i < $length; $i++) {
 
-            $code = ord($text[$i]);
-            // A-Z
-            if ($code >= 65 && $code <= 90) {
-                $result = $result . $text[$i];
+            $char = $text[$i];
+            $code = ord($char);
+
+            $isLetters = false;
+            $isDigits = false;
+            $isSpace = false;
+            $isExtra = false;
+
+            if (
+                ($code >= 65 && $code <= 90) ||
+                ($code >= 97 && $code <= 122)
+            ) {
+                $isLetters = true;
             }
-            // a-z
-            elseif ($code >= 97 && $code <= 122) {
-                $result = $result . $text[$i];
+
+            if ($code >= 48 && $code <= 57) {
+                $isDigits = true;
             }
-            // 0-9 
-            elseif ($code >= 48 && $code <= 57) {
-                $result = $result . $text[$i];
+
+            if ($code == 32){
+                $isSpace = true;
             }
-            // space
-            elseif ($code == 32) {
-                $result = $result . $text[$i];
+            
+            if (
+                $char === "@" ||
+                $char === "." ||
+                $char === "_" ||
+                $char === "-" ||
+                $char === "+"
+            ){
+                $isExtra = true;
             }
-            // @
-            elseif ($code == 64) {
-                 $result = $result . $text[$i]; 
-            } 
-            // . 
-            elseif ($code == 46) {
-                 $result = $result . $text[$i]; 
-            } 
-            // _ 
-            elseif ($code == 95) {
-                 $result = $result . $text[$i]; 
-            }
-            // _
-            elseif ($code == 45) {
-                 $result = $result . $text[$i]; 
-            } // +
-            elseif ($code == 43) {
-                 $result = $result . $text[$i]; 
+
+            if ($isLetters || $isDigits || $isSpace || $isExtra) {
+                $result = $result . $char;
             }
 
         }
@@ -169,6 +171,7 @@ class StringUtils{
     }
 
     function stripPhone($text){
+        $text = $this->trimText($text);
         $result = "";
         $length = $this->length($text);
 
@@ -178,7 +181,13 @@ class StringUtils{
             $code = ord($char);
 
             $isDigit = ($code >= 48 && $code <= 57);
-            $isExtra = (strpos("+- ", $char) !== false);
+            // $isExtra = (strpos("+- ", $char) !== false);
+            
+            $isExtra = false;
+
+            if ($char === "+" || $char === "-" || $char === " ") {
+                $isExtra = true;
+            }
 
             if ($isDigit || $isExtra) {
                 $result = $result . $char;
@@ -189,6 +198,9 @@ class StringUtils{
     }
 
     function stripEmail($text){
+
+        $text = $this->trimText($text);
+
         $result = "";
         $length = $this->length($text);
 
@@ -197,9 +209,19 @@ class StringUtils{
             $char = $text[$i];
             $code = ord($char);
 
-            $isDigit = ($code >= 48 && $code <= 57);
-            $isUpper = ($code >= 65 && $code <= 90);
-            $isLower = ($code >= 97 && $code <= 122);
+            $isDigit = false;
+            $isUpper = false;
+            $isLower = false;
+
+            if ($code >= 48 && $code <= 57) {
+                $isDigit = true;
+            }
+            if ($code >= 65 && $code <= 90) {
+                $isUpper = true;
+            }
+            if ($code >= 97 && $code <= 122) {
+                $isLower = true;
+            }
 
             $isExtra = (strpos("@._-", $char) !== false);
 
@@ -217,6 +239,8 @@ $string = new StringUtils();
 
 function sanitizeFormData($data, $string){
 
+//    global $string;
+
    $cleanData = [];
 
    foreach($data as $key=>$value){
@@ -225,19 +249,17 @@ function sanitizeFormData($data, $string){
 
         $key = $string->downcase($key);
 
+        $value = $string->trimText($value);
+
         if ($key == "name") {
             $value = $string->stripText($value); 
-            $value = $string->trimText($value); 
             $value = $string->titleCase($value);
         }elseif ($key == "mobile"){
             $value = $string->stripPhone($value); 
-            $value = $string->trimText($value);
         }elseif($key == "email"){
             $value = $string->stripEmail($value); 
-            $value = $string->trimText($value);
         }else{
             $value = $string->stripText($value); 
-            $value = $string->trimText($value);
         }
 
         $cleanData[$key] = $value;
@@ -255,7 +277,7 @@ print_r($_POST);
 echo "<h3>Sanitize Array</h3>";
 print_r(sanitizeFormData($_POST, $string));
 
-echo "<h3>Get Class Methods</h3>";
-print_r(get_class_methods("StringUtils"));
+// echo "<h3>Get Class Methods</h3>";
+// print_r(get_class_methods("StringUtils"));
 
 echo "</pre>";

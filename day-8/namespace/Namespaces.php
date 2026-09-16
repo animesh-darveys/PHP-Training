@@ -1,6 +1,6 @@
 <?php
-require "Admin.php";
-require "Customer.php";
+require_once "Admin.php";
+require_once "Customer.php";
 
 $user = new Admin\User();
 

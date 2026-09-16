@@ -1,0 +1,19 @@
+{
+    "name": "anime/student-project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/",
+            "Helpers\\": "helper/",
+            "Services\\": "services/"
+        }
+    },
+    "authors": [
+        {
+            "name": "animesh-darveys",
+            "email": "animesh.gupta@darveys.com"
+        }
+    ],
+    "require": {
+        "monolog/monolog": "^3.12"
+    }
+}
