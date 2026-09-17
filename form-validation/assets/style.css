@@ -1,0 +1,90 @@
+ * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        .register-form-container {
+            background: #f5f5f5;
+            width: 50rem;
+            margin: auto;
+            padding: 2rem;
+            margin-top: 2rem
+        }
+
+        .form-group {
+            margin-bottom: 1rem
+        }
+
+        .form-group input {
+            border: 1px solid #ddd;
+            padding: .5rem;
+            outline: none;
+            display: block;
+            width: 100%
+        }
+
+        label.radio-input {
+            display: inline-flex;
+            align-items: center;
+            justify-content: start
+        }
+
+        label.radio-input input {
+            width: unset;
+            margin-inline-end: .5rem
+        }
+
+        input[type=file] {
+            background: #fff
+        }
+
+        .form-group-checkbox {
+            margin-bottom: 1rem
+        }
+
+        .form-group-checkbox label {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        button.button {
+            background: #000;
+            outline: none;
+            box-shadow: none;
+            border: none;
+            padding: .5rem 1.5rem;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 4px
+        }
+
+        span.error {
+            color: red;
+            font-size: 14px;
+            display: none;
+            margin-top: 5px;
+        }
+
+        span.error.show {
+            display: block
+        }
+
+        input[type="checkbox"] {
+            display: inline;
+            width: unset
+        }
+
+        textarea#address {
+            width: 100%;
+            border: 1px solid #ddd;
+            height: 100px;
+            resize: none;
+        }
+
+        select#country {
+            border: 1px solid #ddd;
+            padding: 5px;
+            width: 200px;
+        }
