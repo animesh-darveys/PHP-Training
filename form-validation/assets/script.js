@@ -1,0 +1,529 @@
+function allowOnlyNumbers(input) {
+    if (!input) return;
+    input.addEventListener("input", function () {
+        this.value = this.value.replace(/\D/g, "");
+    });
+}
+
+allowOnlyNumbers(document.querySelector("#age"));
+allowOnlyNumbers(document.querySelector("#mobile"));
+allowOnlyNumbers(document.querySelector("#pincode"));
+
+const nameInput = document.querySelector("#name");
+const nameError = document.querySelector("#nameError");
+
+const mobileInput = document.querySelector("#mobile");
+const mobileError = document.querySelector("#mobileError");
+
+const emailInput = document.querySelector("#email");
+const emailError = document.querySelector("#emailError");
+
+const ageInput = document.querySelector("#age");
+const ageError = document.querySelector("#ageError");
+
+const dobInput = document.querySelector("#dob");
+const dobError = document.querySelector("#dobError");
+
+const genderInputs = document.querySelectorAll('input[name="gender"]');
+const genderError = document.querySelector("#genderError");
+const ALLOWED_GENDERS = ["male", "female"];
+
+const skillInputs = document.querySelectorAll('input[name="technology[]"]');
+const ALLOWED_SKILLS = ["php", "laravel", "javascript"];
+const skillsError = document.querySelector("#skillsError");
+
+const profileInput = document.querySelector('#profile');
+const profileError = document.querySelector('#profileError');
+
+const documentsInput = document.querySelector('#documents');
+const documentsError = document.querySelector('#documentsError');
+
+const passwordInput = document.querySelector('#password');
+const passwordError = document.querySelector('#passwordError');
+
+const confirmPasswordInput = document.querySelector('#confirmPassword');
+const confirmError = document.querySelector('#confirmError');
+
+const countryInput = document.querySelector('#country');
+const countryError = document.querySelector('#countryError');
+const ALLOWED_COUNTRY = ["IN", "POK", "UK", "USA"];
+
+const addressInput = document.querySelector('#address');
+const addressError = document.querySelector('#addressError');
+
+const websiteInput = document.querySelector('#website');
+const websiteError = document.querySelector('#websiteError');
+
+const termInput = document.querySelector('#terms');
+const termsError = document.querySelector('#termsError');
+
+function validateUrl() {
+    websiteError.textContent = "";
+    websiteError.classList.remove("show");
+
+    const url = websiteInput.value.trim();
+
+    if (!/^https?:\/\/[^\s]+$/.test(url)) {
+        websiteError.textContent = "Invalid URL";
+        websiteError.classList.add("show");
+        return false;
+    }
+
+    return true;
+}
+
+function termsValidation() {
+    termsError.textContent = "";
+    termsError.classList.remove('show');
+
+    if (!termInput.checked) {
+        termsError.textContent = "You must agree to the Terms & Conditions.";
+        termsError.classList.add('show');
+        return false;
+    }
+    return true;
+}
+
+function validateAddress() {
+    addressError.textContent = "";
+    addressError.classList.remove("show");
+
+    const address = addressInput.value.trim();
+    if (!/^.{10,200}$/.test(address)) {
+        addressError.textContent = "Address must be between 10 to 200 characters.";
+        addressError.classList.add("show");
+        return false;
+    }
+    return true;
+}
+
+
+function validateCountry() {
+    countryError.textContent = "";
+    countryError.classList.remove("show");
+
+    if (countryInput.value === "") {
+        countryError.textContent = "Please select any country";
+        countryError.classList.add("show");
+        return false;
+    }
+
+    if (!ALLOWED_COUNTRY.includes(countryInput.value)) {
+        countryError.textContent = "Please select valid country";
+        countryError.classList.add("show");
+        return false;
+    }
+    return true;
+}
+
+function validatePassword() {
+    passwordError.textContent = '';
+    passwordError.classList.remove("show");
+
+    const password = passwordInput.value.trim();
+    if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[@#$]).{8,}$/.test(password)) {
+        passwordError.textContent = "Password must contain 8+ characters, one uppercase, one lowercase, one number and one speacial char (@,$,#).";
+        passwordError.classList.add("show");
+        return false;
+    }
+    return true;
+}
+
+function validateConfirmPassword() {
+    
+    const password = passwordInput.value.trim();
+    const confirmPassword = confirmPasswordInput.value;
+
+    confirmError.textContent = '';
+    confirmError.classList.remove("show");
+
+    if (password == '') {
+        confirmError.textContent = 'Confirm password is required';
+        confirmError.classList.add("show");
+        return false;
+    }
+
+    if (confirmPassword != password) {
+        confirmError.textContent = 'Password is not matched';
+        confirmError.classList.add("show");
+        return false;
+    }
+
+    return true;
+}
+
+function validateDocuments() {
+    documentsError.textContent = '';
+    documentsError.classList.remove("show");
+
+    if (documentsInput.files.length === 0) {
+        documentsError.textContent = 'This field cant be empty';
+        documentsError.classList.add("show");
+        return false;
+    }
+
+    const maxSize = 1 * 1024 * 1024;
+    const invalidFiles = [];
+    const invalidFormatFiles = [];
+
+    for (const file of documentsInput.files) {
+        if (file.size > maxSize) {
+            invalidFiles.push(file.name);
+        }
+        const extension = file.name.split('.').pop().toLowerCase();
+        if (file.type != 'application/pdf' || extension !== 'pdf') {
+            invalidFormatFiles.push(file.name);
+        }
+    }
+
+    if (invalidFiles.length > 0) {
+        documentsError.textContent = `These files exceed 2MB: ${invalidFiles.join(', ')}`;
+        documentsError.classList.add("show");
+        documentsInput.value = null;
+        return false;
+    }
+
+    if (invalidFormatFiles.length > 0) {
+        documentsError.textContent = `Only PDF files are allowed: ${invalidFormatFiles.join(', ')}`;
+
+        documentsError.classList.add("show");
+        documentsInput.value = null;
+
+        return false;
+    }
+
+    return true;
+
+}
+function validatePhoto() {
+    profileError.textContent = '';
+    profileError.classList.remove("show");
+
+    if (profileInput.files.length === 0) {
+        profileError.textContent = 'This field cant be empty';
+        profileError.classList.add("show");
+        return false;
+    }
+
+    const file = profileInput.files[0];
+
+    const maxSize = 1 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+        profileError.textContent = 'Max file size should be 2MB';
+        profileError.classList.add("show");
+        profileInput.value = null;
+
+        return false;
+    }
+
+    const allowedMimeTypes = ['image/png', 'image/jpeg', 'image/webp'];
+    const allowedExtensions = ['png', 'jpg', 'jpeg', 'webp'];
+    const extenstions = file.name.split('.').pop().toLowerCase();
+
+    if (!allowedMimeTypes.includes(file.type) && !allowedExtensions.includes(extenstions)) {
+        profileError.textContent = 'Invalid file format. Only PNG, JPEG, and PDF are allowed.';
+        profileError.classList.add("show");
+        profileInput.value = null;
+        return false;
+    }
+    profileError.textContent = "";
+    profileError.classList.remove("show");
+    return true;
+}
+
+countryInput.addEventListener('blur', function () {
+    validateCountry();
+});
+
+addressInput.addEventListener('blur', function () {
+    validateAddress();
+});
+
+websiteInput.addEventListener('blur', function () {
+    validateUrl();
+});
+
+function validateName() {
+    const name = nameInput.value.trim();
+    nameError.textContent = "";
+
+    if (!/^[A-Za-z ]{3,50}$/.test(name)) {
+        nameError.textContent = "Name must be 3-50 characters and contain only letters and spaces";
+        nameError.classList.add("show");
+        return false;
+    }
+
+    nameError.textContent = "";
+    nameError.classList.remove("show");
+    return true;
+}
+
+function validateMobile() {
+    const mobile = mobileInput.value.trim();
+    mobileError.textContent = "";
+
+    if (!/^\d{10}$/.test(mobile)) {
+        mobileError.textContent = "Mobile must be 10 digits only";
+        mobileError.classList.add("show");
+        return false;
+    }
+
+    mobileError.textContent = "";
+    mobileError.classList.remove("show");
+
+    return true;
+}
+
+function validateEmail() {
+    const email = emailInput.value.trim();
+    emailError.textContent = "";
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+        emailError.textContent = "Please enter a valid email address";
+        emailError.classList.add("show");
+        return false;
+    }
+
+    emailError.textContent = "";
+    emailError.classList.remove("show");
+
+    return true;
+}
+
+function validateAge() {
+    const age = ageInput.value.trim();
+    ageError.textContent = "";
+
+    if (!/^(18|19|2[0-9]|3[0-9]|40)$/.test(age)) {
+        ageError.textContent = "Please enter age between 18-40 year old";
+        ageError.classList.add("show");
+        return false;
+    }
+
+    ageError.textContent = "";
+    ageError.classList.remove("show");
+
+    return true;
+}
+
+function validateDOB() {
+
+    const dob = dobInput.value;
+    dobError.textContent = "";
+
+    dobError.classList.remove("show");
+
+    if (dob === "") {
+        dobError.textContent = "Date of birth is required";
+        dobError.classList.add("show");
+        return false;
+    }
+
+    const birthDate = new Date(dob);
+    const today = new Date();
+
+    if (birthDate > today) {
+        dobError.textContent = "Date of birth cannot be in the future";
+        dobError.classList.add("show");
+        return false;
+    }
+
+    const minimumAllowedBirthDate = new Date();
+
+    minimumAllowedBirthDate.setFullYear(minimumAllowedBirthDate.getFullYear() - 30);
+
+    if (birthDate < minimumAllowedBirthDate) {
+        dobError.textContent = "Age cannot be more than 30 years";
+        dobError.classList.add("show");
+        return false;
+    }
+
+    dobError.textContent = "";
+    dobError.classList.remove("show");
+
+    return true;
+}
+
+function validateGender() {
+    genderError.textContent = "";
+    genderError.classList.remove("show");
+
+    const selectedGender = document.querySelector('input[name="gender"]:checked');
+
+    if (!selectedGender) {
+        genderError.textContent = "Please select your gender";
+        genderError.classList.add("show");
+        return false;
+    }
+
+    if (!ALLOWED_GENDERS.includes(selectedGender.value)) {
+        genderError.textContent = "Please select a correct gender";
+        genderError.classList.add("show");
+        return false;
+    }
+
+    return true;
+}
+
+function validateSkills() {
+    skillsError.textContent = "";
+    skillsError.classList.remove("show");
+
+    const selectedSkills = [...skillInputs].filter(input => input.checked).map(input => input.value);
+
+    if (selectedSkills.length === 0) {
+        skillsError.textContent = "Please select at least one skill";
+        skillsError.classList.add("show");
+        return false;
+    }
+
+    const areSkillsValid = selectedSkills.every(skill =>
+        ALLOWED_SKILLS.includes(skill)
+    );
+
+    if (!areSkillsValid) {
+        skillsError.textContent = "Please select valid skills";
+        skillsError.classList.add("show");
+        return false;
+    }
+
+    return true;
+}
+
+genderInputs.forEach(input => {
+    input.addEventListener("change", function () {
+        genderError.textContent = "";
+        genderError.classList.remove("show");
+    });
+});
+
+skillInputs.forEach(input => {
+    input.addEventListener("change", function () {
+        skillsError.textContent = "";
+        skillsError.classList.remove("show");
+    });
+});
+
+nameInput.addEventListener("blur", function () {
+    validateName();
+});
+
+nameInput.addEventListener("input", function () {
+    nameError.textContent = "";
+    nameError.classList.remove("show");
+});
+
+mobileInput.addEventListener("blur", function () {
+    validateMobile();
+});
+
+mobileInput.addEventListener("input", function () {
+    mobileError.textContent = "";
+    mobileError.classList.remove("show");
+});
+
+emailInput.addEventListener("blur", function () {
+    validateEmail();
+});
+
+emailInput.addEventListener("input", function () {
+    emailError.textContent = "";
+    emailError.classList.remove("show");
+});
+
+ageInput.addEventListener("blur", function () {
+    validateAge();
+});
+
+ageInput.addEventListener("input", function () {
+    ageError.textContent = "";
+    ageError.classList.remove("show");
+});
+
+dobInput.addEventListener("blur", function () {
+    validateDOB();
+});
+
+dobInput.addEventListener("input", function () {
+    dobError.textContent = "";
+    dobError.classList.remove("show");
+});
+
+
+// FORM SUBMISSION CODE START HERE
+const form = document.querySelector('form.register-form');
+
+form.addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const isNameValid = validateName();
+    if (!isNameValid) {
+        // nameInput.focus();
+        // return;
+    }
+    const isMobileValid = validateMobile();
+    if (!isMobileValid) {
+        // mobileInput.focus();
+        // return;
+    }
+    const isEmailValid = validateEmail();
+    if (!isEmailValid) {
+        // emailInput.focus();
+        // return;
+    }
+
+    const isAgeValid = validateAge();
+    if (!isAgeValid) {
+        // ageInput.focus();
+        // return;
+    }
+
+    const isDOBValid = validateDOB();
+    if (!isDOBValid) {
+        // dobInput.focus();
+        // return;
+    }
+
+    const isGenderValid = validateGender();
+    if (!isGenderValid) {
+        // genderInputs[0].focus();
+        // return;
+    }
+
+    const isSkillsValid = validateSkills();
+    if (!isSkillsValid) {
+        // skillInputs[0].focus();
+        // return;
+    }
+    const isPhotoValid = validatePhoto();
+    const isDocumentsValid = validateDocuments();
+    const isPasswordValid = validatePassword();
+    const isConfirmPasswordValid = validateConfirmPassword();
+    const isCountryValid = validateCountry();
+    const isAddressValid = validateAddress();
+    const isUrlValid = validateUrl();
+    const isTermValid = termsValidation();
+
+    if (
+        !isNameValid ||
+        !isMobileValid ||
+        !isEmailValid ||
+        !isAgeValid ||
+        !isDOBValid ||
+        !isGenderValid ||
+        !isSkillsValid ||
+        !isPhotoValid ||
+        !isDocumentsValid ||
+        !isPasswordValid ||
+        !isConfirmPasswordValid ||
+        !isCountryValid ||
+        !isAddressValid ||
+        !isUrlValid ||
+        !isTermValid
+    ) {
+        return;
+    }
+
+    form.submit();
+});
