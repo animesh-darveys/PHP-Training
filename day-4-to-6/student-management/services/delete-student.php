@@ -3,9 +3,8 @@ require_once "../config/database.php";
 session_start();
 
 if(isset($_POST["student-delete-btn"])){
-echo "deleted";
+// echo "deleted";
 $id= $_POST["id"];
-// echo $id;
 
 $sql = "DELETE FROM students WHERE id = :id";
 

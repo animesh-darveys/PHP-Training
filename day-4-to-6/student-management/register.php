@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once "auth.php";
 require_once "services/register-service.php";
 if (empty($_SESSION["csrf_token"])) {
     $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
@@ -18,7 +18,11 @@ if (empty($_SESSION["csrf_token"])) {
 <body class="bg-light">
     <nav class="navbar navbar-dark bg-dark mb-4">
         <div class="container">
-            <span class="navbar-brand mb-0 h1">Student Management System</span>
+            <span class="navbar-brand mb-0 h1">Student Management System
+            <?php if (isset($_SESSION['username'])): ?>
+                (<?= htmlspecialchars($_SESSION['username']) ?>)
+            <?php endif; ?>
+            </span>
         </div>
     </nav>
 
@@ -35,24 +39,16 @@ if (empty($_SESSION["csrf_token"])) {
                 <h4 class="card-title mb-3">Register Student</h4>
 
                 <form method="POST" action="" enctype="multipart/form-data" novalidate>
-
-                    
-                   <input type="hidden"
-           name="csrf_token"
-           value="<?= htmlspecialchars($_SESSION["csrf_token"]) ?>">
-                   <?php /* */?>
-                    
+                   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION["csrf_token"]) ?>">
                     <div class="mb-3">
                         <label class="form-label">Full Name</label>
                         <input type="text" class="form-control" name="name"
                             value="<?= htmlspecialchars($studentName) ?>" required>
                         <div class="invalid-feedback d-block text-danger small">
-
                             <?php if (isset($errors["studentName"])): ?>
                             <?= htmlspecialchars($errors["studentName"]) ?>
                             <?php endif; ?>
                         </div>
-
                     </div>
 
                     <div class="mb-3">
@@ -113,6 +109,13 @@ if (empty($_SESSION["csrf_token"])) {
                             <?php endif; ?>
                         </div>
                     </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" required>Password</label>
+                        <input type="password" name="password" id="password" class="form-control" required>
+                    </div>
+
+                    
 
                     <button type="submit" class="btn btn-primary w-100">Register</button>
                 </form>

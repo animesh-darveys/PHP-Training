@@ -1,5 +1,8 @@
 <?php
 require_once 'validation.php';
+session_start();
+$_SESSION['username'] = "Animesh";
+$_SESSION['password'] = "Animesh@321";
 ?>
 
 <!DOCTYPE html>
@@ -17,14 +20,13 @@ require_once 'validation.php';
     <div class="register-form-container">
         <form action="" method="POST" enctype="multipart/form-data" class="register-form">
             <div class="form-group">
-                <label for="name">Full Name</label>
+                <label for="name">Full Name:</label>
                 <input type="text" name="name" id="name" placeholder="Enter Your Name" value="<?= htmlspecialchars($name) ?>">
-                <!-- <span id="nameError" class="error" role="alert"></span> -->
                 <span id="nameError" class="error <?= !empty($nameError) ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($nameError) ?></span>
             </div>
 
             <div class="form-group">
-                <label for="mobile">Mobile No.</label>
+                <label for="mobile">Mobile No.:</label>
                 <input type="text" name="mobile" id="mobile" placeholder="Enter Mobile Number" value="<?= htmlspecialchars($mobile) ?>">
                 <span id="mobileError" class="error <?= !empty($mobileError) ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($mobileError) ?></span>
 
@@ -49,7 +51,7 @@ require_once 'validation.php';
             </div>
 
             <div class="form-group">
-                <label for="country" class="">Place of Birth</label><br>
+                <label for="country" class="">Place of Birth:</label><br>
                 <select class="country" name="country" id="country">
                     <option value="">Select Country</option>
                     <option value="IN" <?= $country === 'IN' ? 'selected' : '' ?>>India</option>
@@ -61,7 +63,7 @@ require_once 'validation.php';
             </div>
 
             <div class="form-group">
-                <label for="address" class="">Permanent Address</label>
+                <label for="address" class="">Permanent Address:</label>
                 <div>
                     <textarea row="4" class="address" id="address" name="address"><?= htmlspecialchars($address) ?></textarea>
                     <span id="addressError" class="error <?= $addressError ? 'show' : ''; ?>" role="alert"><?= htmlspecialchars($addressError) ?></span>
@@ -69,7 +71,7 @@ require_once 'validation.php';
             </div>
 
             <div class="form-group">
-                <label for="website" class="">Website URL</label>
+                <label for="website" class="">Website URL:</label>
                 <div>
                     <input type="url" class="website" id="website" name="website" value="<?= htmlspecialchars($website) ?>">
                     <span id="websiteError" class="error <?= $websiteError ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($websiteError) ?></span>
@@ -80,16 +82,16 @@ require_once 'validation.php';
             <div class="form-group">
                 <div>Gender:</div>
                 <label for="gender-male" class="radio-input">
-                    <input type="radio" name="gender" id="gender-male" value="male" <?php $gender === 'male' ? 'checked' : ''; ?>>Male
+                    <input type="radio" name="gender" id="gender-male" value="male" <?= $gender === 'male' ? 'checked' : '' ?>>Male
                 </label>
                 <label for="gender-female" class="radio-input">
-                    <input type="radio" name="gender" id="gender-female" value="female" <?php $gender === 'female' ? 'checked' : ''; ?>>Female
+                    <input type="radio" name="gender" id="gender-female" value="female" <?= $gender === 'female' ? 'checked' : '' ?>>Female
                 </label>
                 <span id="genderError" class="error <?= $genderError ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($genderError) ?></span>
             </div>
 
             <div class="form-group-checkbox">
-                <p>Skills</p>
+                <p>Skills:</p>
                 <label>
                     <input type="checkbox" name="technology[]" value="php" <?= in_array('php', $skills, true) ? 'checked' : '' ?>>PHP
                 </label>
@@ -104,25 +106,25 @@ require_once 'validation.php';
 
             <div class="form-group">
                 <label for="profile">Profile Picture:</label>
-                <input type="file" id="profile" name="profile">
+                <input type="file" id="profile" name="profile" accept=".jpg,.jpeg,.png,.webp">
                 <span id="profileError" class="error <?= $profileError ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($profileError) ?></span>
             </div>
 
             <div class="form-group">
                 <label for="documents">Documents:</label>
-                <input type="file" id="documents" name="documents[]" multiple>
-                <span id="documentsError" class="error" role="alert"></span>
+                <input type="file" id="documents" name="documents[]" accept=".pdf" multiple>
+                <span id="documentsError" class="error <?= $documentsError ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($documentsError) ?></span>
             </div>
 
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password">Password:</label>
                 <input type="password" name="password" id="password" placeholder="Enter Password">
                 <span id="passwordError" class="error <?= $passwordError ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($passwordError) ?></span>
 
             </div>
 
             <div class="form-group">
-                <label for="confirmPassword">Confirm Password</label>
+                <label for="confirmPassword">Confirm Password:</label>
                 <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password">
                 <span id="confirmError" class="error <?= $confirmPasswordError ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($confirmPasswordError) ?></span>
             </div>
@@ -138,7 +140,7 @@ require_once 'validation.php';
             <button type="submit" class="button">Submit</button>
         </form>
     </div>
-    <!-- <script src="assets/script.js"></script> -->
+    <script src="assets/script.js"></script>
 </body>
 
 </html>
