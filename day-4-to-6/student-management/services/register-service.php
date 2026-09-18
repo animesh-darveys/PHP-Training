@@ -1,5 +1,5 @@
 <?php
-
+require_once "auth.php";
 require_once "config/database.php";
 require_once "services/insert-student.php";
 require_once "services/register-validation.php";
@@ -9,7 +9,7 @@ $studentEmail = "";
 $studentDOB = "";
 $studentCourse = "";
 $studentImage = "";
-
+$studentPassword = "";
 $errors = [];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -28,6 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $studentEmail = trim($_POST["email"] ?? "");
     $studentDOB = trim($_POST["dob"] ?? "");
     $studentCourse = trim($_POST["course"] ?? "");
+    $studentPassword = $_POST["password"] ?? "";
 
     // Validate student
     $errors = validateStudent(
@@ -41,6 +42,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (empty($errors)) {
         
         require_once "config/database.php";
+
+        $hashedPassword = password_hash(
+            $studentPassword,
+            PASSWORD_DEFAULT
+        );
 
         try {
 
@@ -67,15 +73,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $profilePhoto = $uploadDir . $newFileName;
         }
 
-        // Insert student
-            insertStudent(
-                $conn,
-                $studentName,
-                $studentEmail,
-                $studentDOB,
-                $studentCourse,
-                $profilePhoto
-            );
+        insertStudent(
+            $conn,
+            $studentName,
+            $studentEmail,
+            $hashedPassword,
+            $studentDOB,
+            $studentCourse,
+            $profilePhoto
+        );
 
         header("Location: student_list.php");
         exit;

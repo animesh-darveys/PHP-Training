@@ -17,27 +17,27 @@ $allowedCountries = ['IN', 'POK', 'UK', 'USA'];
 $country = '';
 $countryError = '';
 
-$address ='';
-$addressError= '';
+$address = '';
+$addressError = '';
 
 $website = '';
 $websiteError = '';
 
-$allowedGenders =['male','female'];
+$allowedGenders = ['male', 'female'];
 $gender = '';
 $genderError = '';
 
 $allowedSkills = ['javascript', 'laravel', 'php'];
 $skills = [];
-$skillsError='';
+$skillsError = '';
 
 $password = '';
-$passwordError ='';
+$passwordError = '';
 
 $confirmPassword = '';
-$confirmPasswordError ='';
+$confirmPasswordError = '';
 
-$terms ='';
+$terms = '';
 $termError = '';
 
 $profile = [];
@@ -45,6 +45,10 @@ $profileError = '';
 
 $documents = [];
 $documentsError = '';
+
+// echo "<pre>";
+// print_r($_FILES);
+// echo "</pre>";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -62,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirmPassword = $_POST['confirmPassword'] ?? '';
     $terms = $_POST['terms'] ?? '';
     $profile = $_FILES['profile'] ?? [];
-
+    $documents = $_FILES['documents'] ?? [];
 
     if (!preg_match('/^[A-Za-z ]{3,50}$/', $name)) {
         $nameError = 'Name must be 3-50 characters and contain only letters and spaces';
@@ -80,9 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ageError = 'Age must be between 18 and 40';
     }
 
-    if($dob === ''){
+    if ($dob === '') {
         $dobError = 'Date of birth is required';
-    }else{
+    } else {
         $birthDate = new DateTime($dob);
         $today = new DateTime();
         if ($birthDate > $today) {
@@ -96,9 +100,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if($country === ''){
+    if ($country === '') {
         $countryError = "Please Select country before submit.";
-    }elseif(!in_array($country, $allowedCountries, true)){
+    } elseif (!in_array($country, $allowedCountries, true)) {
         $countryError = "Please Select valid country.";
     }
 
@@ -106,9 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $addressError = 'Address must be between 10 to 200 characters.';
     }
 
-    if($website === ''){
+    if ($website === '') {
         $websiteError = "This field required";
-    }elseif(!filter_var($website, FILTER_VALIDATE_URL)){
+    } elseif (!filter_var($website, FILTER_VALIDATE_URL)) {
         $websiteError = "Please enter valid url.";
     }
 
@@ -118,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $genderError = "Invalid selection detected.";
     }
 
-   if (!is_array($skills)) {
+    if (!is_array($skills)) {
         $skillsError = 'Invalid skills data.';
     } elseif (empty($skills)) {
         $skillsError = 'Please select at least one skill.';
@@ -135,20 +139,100 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $passwordError = 'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.';
     }
 
-    if($confirmPassword === ''){
+    if ($confirmPassword === '') {
         $confirmPasswordError = "Please Enter Confirm Password";
-    }elseif($confirmPassword !== $password){
+    } elseif ($confirmPassword !== $password) {
         $confirmPasswordError = "Passwords do not match.";
     }
 
-    if($terms!= 1){
+    if ($terms != 1) {
         $termsError = "Please select it before form submission.";
     }
-
-    if (empty($profile) || $profile['error'] === UPLOAD_ERR_NO_FILE) {
-        $profileError = 'Please select a profile image.';
-    } elseif (!in_array($profile['type'], ['image/jpeg', 'image/png', 'image/webp'], true)) {
-        $profileError = 'Please select a JPEG, PNG, or WEBP image.';
-    }
+    // var_dump(empty($profile));
+    // var_dump(!isset($profile['error']));
+    // var_dump($profile['error'] === UPLOAD_ERR_NO_FILE);
     
+    if (empty($profile) || !isset($profile['error']) || $profile['error'] === UPLOAD_ERR_NO_FILE) {
+        $profileError = 'Please select a profile image.';
+    } elseif ($profile['error'] !== UPLOAD_ERR_OK) {
+        $profileError = 'There was an error uploading the profile image.';
+    } elseif ($profile['size'] > 1 * 1024 * 1024) {
+        $profileError = 'Maximum file size should be 1MB.';
+    } elseif ($profile['size'] === 0) {
+        $profileError = 'The uploaded file is empty.';
+    } else {
+        $allowedMimeToExt = [
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/webp' => 'webp',
+        ];
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($profile['tmp_name']);
+
+        if (!isset($allowedMimeToExt[$mimeType])) {
+            $profileError = 'Invalid file format. Only JPG, PNG, and WEBP are allowed.';
+        } elseif (@getimagesize($profile['tmp_name']) === false) {
+            $profileError = 'The uploaded file is not a valid image.';
+        } else {
+            $extension = $allowedMimeToExt[$mimeType];
+        }
+    }
+
+    if (empty($profileError)) {
+        $uploadDirectory = 'uploads/profile/';
+
+        if (!is_dir($uploadDirectory) && !mkdir($uploadDirectory, 0755, true)) {
+            $profileError = 'Upload directory is not available.';
+        } else {
+            $newFileName = bin2hex(random_bytes(16)) . '.' . $extension;
+            $destination = $uploadDirectory . $newFileName;
+
+            if (!move_uploaded_file($profile['tmp_name'], $destination)) {
+                $profileError = 'Failed to upload the profile image.';
+            }
+        }
+    }
+
+    if (empty($documents) || !isset($documents['name']) || empty($documents['name'][0])) {
+        $documentsError = 'Please select at least one file.';
+    } else {
+        $maxSize = 1 * 1024 * 1024;
+
+        foreach ($documents['name'] as $key => $fileName) {
+            if ($documents['error'][$key] !== UPLOAD_ERR_OK) {
+                $documentsError = "Error uploading file: $fileName";
+                break;
+            }
+
+            if ($documents['size'][$key] > $maxSize) {
+                $documentsError = "File must not exceed 1 MB: $fileName";
+                break;
+            }
+
+            $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->file($documents['tmp_name'][$key]);
+
+            if ($mimeType !== 'application/pdf' || $extension !== 'pdf') {
+                $documentsError = "Please select PDF files only: $fileName";
+                break;
+            }
+        }
+    }
+
+    if (empty($documentsError)) {
+        $uploadDirectory = 'uploads/documents/';
+
+        foreach ($documents['name'] as $key => $fileName) {
+            $newFileName = bin2hex(random_bytes(16)) . '.pdf';
+            $destination = $uploadDirectory . $newFileName;
+
+            if (!move_uploaded_file($documents['tmp_name'][$key], $destination)) {
+                $documentsError = "Failed to upload file: $fileName";
+                break;
+            }
+        }
+    }
 }

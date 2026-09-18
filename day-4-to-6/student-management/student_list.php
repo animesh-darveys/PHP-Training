@@ -1,7 +1,6 @@
 <?php
+require_once "auth.php";
 require_once "config/database.php";
-
-session_start();
 
 $course = $_GET["course"] ?? "";
 $search = $_GET["search"] ?? "";
@@ -70,9 +69,14 @@ $students = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
 <body class="bg-light">
   <nav class="navbar navbar-dark bg-dark mb-4">
     <div class="container">
-      <span class="navbar-brand mb-0 h1">Student Management System</span>
-      <!-- PHP (Day 9): show logged-in user + logout link -->
-      <a href="logout.html" class="btn btn-outline-light btn-sm">Logout</a>
+      <span class="navbar-brand mb-0 h1">Student Management System 
+        <?php if (isset($_SESSION['username'])): ?>
+          (<?= htmlspecialchars($_SESSION['username']) ?>)
+        <?php endif; ?>
+      </span>
+    <?php if (isset($_SESSION['username'])): ?>
+      <a href="logout.php" class="btn btn-outline-light btn-sm">Logout</a>
+  <?php endif; ?>
     </div>
   </nav>
 
