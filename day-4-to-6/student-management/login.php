@@ -16,16 +16,27 @@ session_start();
 
 require_once "config/database.php";
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$loginError = $_SESSION['login_error'] ?? '';
+unset($_SESSION['login_error']);
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+      $csrfToken = $_POST['csrf_token'] ?? '';
+
+      if (
+          empty($csrfToken) ||
+          !hash_equals($_SESSION['csrf_token'], $csrfToken)
+      ) {
+          die("Invalid CSRF token");
+      }
 
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
-
-    $stmt = $conn->prepare(
-        "SELECT id, full_name, email, password
-         FROM students
-         WHERE email = :email"
-    );
+    $query = "SELECT id, full_name, email, password FROM students WHERE email = :email";
+    $stmt = $conn->prepare($query);
 
     $stmt->execute([
         ':email' => $email
@@ -35,22 +46,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($user && password_verify($password, $user['password'])) {
 
-        // Prevent session fixation
-        session_regenerate_id(true);
 
-        // Store logged-in user information
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['full_name'];
         $_SESSION['email'] = $user['email'];
+        $session_id = session_regenerate_id(true);
 
-        // Redirect after successful login
+        $_SESSION['uid'] = session_id();
+
+
+        $cookieName = "username";
+        $cookieValue = $user['full_name'];
+        setcookie($cookieName, $cookieValue, time() + (86400 * 30), "/");
+
+        $cookieName = "user_id";
+        $cookieValue = $user['id'];
+        setcookie($cookieName, $cookieValue, time() + (86400 * 30), "/");
+
         header('Location: student_list.php');
+
         exit;
 
     } else {
+      $_SESSION['login_error'] = "Invalid email or password";
 
-        echo "Invalid email or password";
-    }
+      header("Location: login.php");
+      exit;
+  }
 }
 
 ?>
@@ -68,15 +90,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <div class="card-body">
         <h4 class="card-title mb-3 text-center">Login</h4>
 
-        <!-- PHP: echo flashed login error, then clear it from session -->
-        <div class="alert alert-danger d-none" id="login-error-placeholder">
-          <!-- PHP: echo $_SESSION['login_error'] ?? '' ; unset($_SESSION['login_error']); -->
-          Invalid email or password.
-        </div>
+        <?php if ($loginError): ?>
+            <div class="alert alert-danger">
+                <?php echo htmlspecialchars($loginError); ?>
+            </div>
+        <?php endif; ?>
 
         <form method="POST" action="">
-          <!-- PHP: <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"> -->
-
           <div class="mb-3">
             <label class="form-label">Email</label>
             <input type="email" class="form-control" name="email" required>
@@ -85,6 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <label class="form-label">Password</label>
             <input type="password" class="form-control" name="password" required>
           </div>
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
           <button type="submit" class="btn btn-primary w-100">Login</button>
         </form>
       </div>

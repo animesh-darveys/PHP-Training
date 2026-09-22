@@ -43,10 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         
         require_once "config/database.php";
 
-        $hashedPassword = password_hash(
-            $studentPassword,
-            PASSWORD_DEFAULT
-        );
+        $hashedPassword = password_hash($studentPassword,PASSWORD_DEFAULT);
 
         try {
 
