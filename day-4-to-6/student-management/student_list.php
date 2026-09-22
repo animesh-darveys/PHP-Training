@@ -1,7 +1,6 @@
 <?php
 require_once "auth.php";
 require_once "config/database.php";
-
 $course = $_GET["course"] ?? "";
 $search = $_GET["search"] ?? "";
 
@@ -29,7 +28,6 @@ if (count($conditions) > 0) {
     $count_sql .= " WHERE " . implode(" AND ", $conditions);
 }
 
-// print_r($conditions);
 $stmt_count = $conn->prepare($count_sql);
 $stmt_count->execute($params);
 
@@ -40,7 +38,6 @@ $page = $_GET["page"] ?? 1;
 $offset = ($page - 1) * $limit;
 
 $total_page = ceil($totalRecords / $limit);
-
 
 $read_sql .= " ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
 
@@ -67,6 +64,7 @@ $students = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
+  
   <nav class="navbar navbar-dark bg-dark mb-4">
     <div class="container">
       <span class="navbar-brand mb-0 h1">Student Management System 
@@ -87,7 +85,6 @@ $students = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
       <a href="register.php" class="btn btn-primary">+ Add Student</a>
     </div>
 
-    <!-- Day 6: Search + Filter -->
     <form method="GET" action="" class="row g-2 mb-3">
       <div class="col-md-5">
         <input type="text" class="form-control" name="search" placeholder="Search by name"
@@ -151,10 +148,8 @@ $students = $stmt_select->fetchAll(PDO::FETCH_ASSOC);
       </tbody>
     </table>  
 
-    <!-- Day 6: Pagination -->
     <nav>
       <ul class="pagination justify-content-center">
-        <!-- PHP: foreach page 1..totalPages, mark current page with class="active" -->
          <?php for($i = 1; $i<= $total_page; $i++ ): ?>
          <li class="page-item"><a class="page-link <?= $page == $i ? 'active' : '' ?>" href="?page=<?php echo $i ?>"><?php echo $i ?></a></li>
          <?php endfor ?>
