@@ -6,9 +6,9 @@
   - On submit (POST), run an UPDATE via a prepared statement
   - Keep the current photo shown unless a new file is uploaded
 -->
-  <?php
-    require_once "config/database.php";
-  ?>
+<?php
+  require_once "config/database.php";
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

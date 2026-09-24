@@ -1,3 +1,13 @@
+<?php
+session_start();
+if (empty($_SESSION['userid']) || empty($_SESSION['role'])) { header('Location: ../login.php'); exit; }
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,26 +24,13 @@
 
             <h3 class="text-center mb-4">Update Password</h3>
 
-            <!-- Errors/success pulled from session (PRG pattern) -->
-            <!--
-            <?php if (!empty($errors)): ?>
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        <?php foreach ($errors as $error): ?>
-                            <li><?php echo htmlspecialchars($error); ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
-
-            <?php if (!empty($success)): ?>
-                <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
-            <?php endif; ?>
-            -->
-
-            <!-- action="update-password.php" method="POST" -->
             <form action="update-password.php" method="POST" id="password-form">
-
+                
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username">
+                    <div class="invalid-feedback" id="username"></div>
+                </div>
                 <div class="mb-3">
                     <label for="current_password" class="form-label">Current Password</label>
                     <input type="password" class="form-control" id="current_password" name="current_password">
@@ -52,8 +49,7 @@
                     <div class="invalid-feedback" id="confirmPasswordError"></div>
                 </div>
 
-                <!-- CSRF token hidden field -->
-                <input type="hidden" name="csrf_token" value="">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
                 <button type="submit" class="btn btn-primary w-100">Update Password</button>
 

@@ -1,3 +1,11 @@
+// only numeric char allowed
+function allowOnlyNumbers(input) {
+    if (!input) return;
+    input.addEventListener("input", function () {
+        this.value = this.value.replace(/\D/g, "").slice(0, 10);
+    });
+}
+
 // name validation function
 const nameInput = document.querySelector("#name");
 const nameError = document.querySelector("#nameError");
@@ -20,14 +28,14 @@ function validateName() {
 // phone number validation function
 const phoneInput = document.querySelector("#phone");
 const phoneError = document.querySelector("#phoneError");
-
+allowOnlyNumbers(phoneInput);
 function validatePhone() {
     if (!phoneInput) {
         return true;
     }
     const phone = phoneInput.value.trim();
     if (!/^\d{10}$/.test(phone)) {
-        phoneError.textContent = "phone must be 10 digits";
+        phoneError.textContent = "Phone must be 10 digits";
         phoneError.classList.add("show");
         return false;
     }
@@ -85,12 +93,35 @@ function validateDob() {
     if (!dobInput) {
         return true;
     }
+
     const dob = dobInput.value.trim();
+
     if (dob == '') {
         dobError.textContent = "This input field is required";
         dobError.classList.add("show");
         return false;
     }
+
+    const dobDate = new Date(dob);
+
+    console.log(dobDate);
+
+    if (isNaN(dobDate.getTime())) {
+        dobError.textContent = "Please enter a valid date";
+        dobError.classList.add("show");
+        return false;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // dono ke hours set kar rhe hai
+    dobDate.setHours(0, 0, 0, 0); // dono ke hours set kar rhe hai
+
+    if (dobDate > today) {
+        dobError.textContent = "Date of birth cannot be a future date";
+        dobError.classList.add("show");
+        return false;
+    }
+
     dobError.textContent = "";
     dobError.classList.remove("show");
     return true;
@@ -101,13 +132,13 @@ const allowedAccountType = ['savings', 'current']
 const accountTypeInput = document.querySelector("#accountType");
 const accountTypeError = document.querySelector("#accountTypeError");
 
-function validateAccountType(){
+function validateAccountType() {
     if (!accountTypeInput) {
         return true;
     }
     const accountType = accountTypeInput.value.trim();
     if (!allowedAccountType.includes(accountType)) {
-        accountTypeError.textContent="Invalid account type.";
+        accountTypeError.textContent = "Invalid account type.";
         accountTypeError.classList.add("show");
         return false;
     }
@@ -116,33 +147,19 @@ function validateAccountType(){
     return true;
 }
 
-
 // submit form
 
 const form = document.querySelector("#customer-form");
 
-form.addEventListener("submit", function(event){
+form.addEventListener("submit", function (event) {
     event.preventDefault();
-
     const isValidName = validateName();
-    const isValidPhone =validatePhone();
-    const isValidEmail =validateEmail();
-    const isValidAddress =validateAddress();
-    const isValidDob =validateDob();
-    const isValidAccountType =validateAccountType();
-    
-
-    if (
-        !isValidName ||
-        !isValidPhone ||
-        !isValidEmail ||
-        !isValidAddress ||
-        !isValidDob ||
-        !isValidAccountType
-    ) {
-        return;
-    }
-
+    const isValidPhone = validatePhone();
+    const isValidEmail = validateEmail();
+    const isValidAddress = validateAddress();
+    const isValidDob = validateDob();
+    const isValidAccountType = validateAccountType();
+    if (!isValidName || !isValidPhone || !isValidEmail || !isValidAddress || !isValidDob || !isValidAccountType) return;
     form.submit();
 });
 
