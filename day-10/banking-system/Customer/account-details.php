@@ -1,3 +1,31 @@
+<?php
+session_start();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+if (empty($_SESSION['userid']) || empty($_SESSION['role'])) { header('Location: ../login.php'); exit; }
+define('BASE_PATH', dirname(__DIR__));
+require_once BASE_PATH . '/config/db.php';
+
+if (strtolower($_SESSION['role']) !== 'customer') { 
+    http_response_code(403);
+    die('Access denied.'); 
+}
+
+$userId = $_SESSION['userid'];
+$sql = "SELECT ci.CustomerID, ci.AccountNumber, ci.FullName, ci.Email, ci.PhoneNumber, 
+               ci.Address, ci.DateOfBirth, ci.AccountType, ci.Status, ab.BalanceAmount,ci.CreatedDate
+        FROM customer_info ci
+        LEFT JOIN account_balance ab ON ci.CustomerID = ab.CustomerID
+        WHERE ci.UserID = :id";
+
+$stmt = $conn->prepare($sql);
+$stmt->execute(['id' => $userId]);
+$customer = $stmt->fetch(PDO::FETCH_ASSOC);
+$_SESSION['customerID'] = $customer['CustomerID'];
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,22 +54,18 @@
 
             <h3 class="text-center mb-4">My Account Details</h3>
 
-            <!-- Every value below is fetched from the DB for the logged-in customer only, e.g. WHERE customer_id = $_SESSION['customer_id'] -->
-
             <div class="detail-row">
                 <span class="detail-label">Full Name</span>
-                <!-- <?php echo htmlspecialchars($customer['full_name']); ?> -->
-                <span class="detail-value">John Doe</span>
+                <span class="detail-value"><?= $customer['FullName'] ?></span>
             </div>
 
             <div class="detail-row">
                 <span class="detail-label">Account Number</span>
                 <span>
                     <!-- masked span shows first 4 digits + asterisks; full span is hidden until toggled -->
-                    <span id="acc-masked" class="detail-value">1234 **** ****</span>
+                    <span id="acc-masked" class="detail-value">SBI1 **** ****</span>
                     <span id="acc-full" class="detail-value d-none">
-                        <!-- <?php echo htmlspecialchars($customer['account_number']); ?> -->
-                        1234 5678 9012
+                        <?php echo htmlspecialchars($customer['AccountNumber']); ?>
                     </span>
                     <button type="button" id="toggle-acc" class="btn btn-sm btn-outline-secondary ms-2" onclick="toggleAccountNumber()">Show</button>
                 </span>
@@ -49,46 +73,43 @@
 
             <div class="detail-row">
                 <span class="detail-label">Email</span>
-                <!-- <?php echo htmlspecialchars($customer['email']); ?> -->
-                <span class="detail-value">john.doe@example.com</span>
+                <span class="detail-value"><?= $customer['Email'] ?></span>
             </div>
 
             <div class="detail-row">
                 <span class="detail-label">Phone Number</span>
-                <!-- <?php echo htmlspecialchars($customer['phone']); ?> -->
-                <span class="detail-value">9876543210</span>
+                <span class="detail-value"><?= $customer['PhoneNumber'] ?></span>
+
             </div>
 
             <div class="detail-row">
                 <span class="detail-label">Address</span>
-                <!-- <?php echo htmlspecialchars($customer['address']); ?> -->
-                <span class="detail-value">221B Baker Street, Delhi</span>
+                <span class="detail-value"><?= $customer['Address'] ?></span>
             </div>
 
             <div class="detail-row">
                 <span class="detail-label">Date of Birth</span>
-                <!-- <?php echo htmlspecialchars($customer['dob']); ?> -->
-                <span class="detail-value">15 Aug 1995</span>
+                <span class="detail-value"><?php echo htmlspecialchars($customer['DateOfBirth']); ?></span>
             </div>
 
             <div class="detail-row">
                 <span class="detail-label">Account Type</span>
-                <!-- <?php echo htmlspecialchars(ucfirst($customer['account_type'])); ?> -->
-                <span class="detail-value">Savings</span>
+                <span class="detail-value"><?php echo htmlspecialchars(ucfirst($customer['AccountType'])); ?></span>
             </div>
 
             <div class="detail-row">
                 <span class="detail-label">Status</span>
-                <!-- badge class toggled based on $customer['status'] -->
-                <span class="badge badge-active">Active</span>
+                <span class="badge badge-active"><?= ucFirst($customer['Status']) ?></span>
             </div>
 
             <div class="detail-row" style="border-bottom: none;">
                 <span class="detail-label">Customer Since</span>
-                <!-- <?php echo date('d M Y', strtotime($customer['created_at'])); ?> -->
-                <span class="detail-value">01 Jan 2024</span>
+                <span class="detail-value"><?= $customer['CreatedDate'] ?></span>
             </div>
-
+            <div class="detail-row d-flex justify-content-start" style="border-bottom: none;">
+                <a class="btn btn-info m-auto" href="./balance.php">View Balance</a>
+                <a class="btn btn-danger m-auto" href="../logout.php">Log Out</a>
+            </div>
         </div>
     </div>
 </div>

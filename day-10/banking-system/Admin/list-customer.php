@@ -1,3 +1,29 @@
+<?php
+session_start();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+if (empty($_SESSION['userid']) || empty($_SESSION['role'])) { header('Location: ../login.php'); exit; }
+define('BASE_PATH', dirname(__DIR__));
+require_once BASE_PATH . '/config/db.php';
+
+$customers = [];
+
+try {
+    $sql = "SELECT ci.CustomerID, ci.AccountNumber, ci.FullName, ci.Email, ci.PhoneNumber, 
+                   ci.Address, ci.DateOfBirth, ci.AccountType, ci.Status, ab.BalanceAmount
+            FROM customer_info ci
+            LEFT JOIN account_balance ab ON ci.CustomerID = ab.CustomerID
+            ORDER BY ci.CustomerID DESC";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (PDOException $e) {
+    echo "Database Error: " . $e->getMessage();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,14 +41,6 @@
         <a href="create-customers.php" class="btn btn-primary">+ Add Customer</a>
     </div>
 
-    <!-- Optional search box - filters table rows via PHP query param or JS -->
-    <form action="list-customer.php" method="GET" class="mb-3">
-        <div class="input-group" style="max-width: 350px;">
-            <input type="text" class="form-control" name="search" placeholder="Search by name or account number">
-            <button type="submit" class="btn btn-outline-secondary">Search</button>
-        </div>
-    </form>
-
     <div class="card shadow-sm">
         <div class="card-body p-0">
             <table class="table table-hover mb-0 align-middle">
@@ -39,53 +57,26 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Loop starts here: <?php foreach ($customers as $i => $customer): ?> -->
+                    <?php foreach ($customers as $i => $customer): ?>
                     <tr>
-                        <td>1</td>
-                        <!-- <?php echo htmlspecialchars($customer['account_number']); ?> -->
-                        <td>1234 5678 9012</td>
-                        <!-- <?php echo htmlspecialchars($customer['full_name']); ?> -->
-                        <td>John Doe</td>
-                        <!-- <?php echo htmlspecialchars($customer['email']); ?> -->
-                        <td>john.doe@example.com</td>
-                        <!-- <?php echo htmlspecialchars($customer['phone']); ?> -->
-                        <td>9876543210</td>
-                        <!-- <?php echo ucfirst($customer['account_type']); ?> -->
-                        <td>Savings</td>
-                        <td><span class="badge bg-success">Active</span></td>
+                        <td><?php echo htmlspecialchars($customer['CustomerID']); ?></td>
+                        <td><?php echo htmlspecialchars($customer['AccountNumber']); ?></td>
+                        <td><?php echo htmlspecialchars($customer['FullName']); ?></td>
+                        <td><?php echo htmlspecialchars($customer['Email']); ?></td>
+                        <td><?php echo htmlspecialchars($customer['PhoneNumber']); ?></td>
+                        <td> <?php echo ucfirst($customer['AccountType']); ?></td>
+                        <td> <?php echo ucfirst($customer['Status']); ?></td>
                         <td>
-                            <!-- href="customer-account-details.php?id=<?php echo $customer['id']; ?>" -->
-                            <a href="customer-account-details.php" class="btn btn-sm btn-outline-primary">View</a>
-                            <!-- href="update-customer.php?id=<?php echo $customer['id']; ?>" -->
-                            <a href="update-customer.php" class="btn btn-sm btn-outline-secondary">Edit</a>
-                            <!-- form posts to delete-customer.php with id + csrf token; confirm before submit -->
+                            <a href="account-details.php?id=<?= $customer['CustomerID'] ?>" class="btn btn-sm btn-outline-primary">View</a>
+                            <a href="update-customer.php?id=<?= $customer['CustomerID'] ?>" class="btn btn-sm btn-outline-secondary">Edit</a>
                             <form action="delete-customer.php" method="POST" class="d-inline" onsubmit="return confirm('Delete this customer?');">
-                                <input type="hidden" name="id" value="1">
-                                <input type="hidden" name="csrf_token" value="">
+                                <input type="hidden" name="id" value="<?= $customer['CustomerID'] ?>">
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                             </form>
                         </td>
                     </tr>
-
-                    <tr>
-                        <td>2</td>
-                        <td>4321 8765 2109</td>
-                        <td>Jane Smith</td>
-                        <td>jane.smith@example.com</td>
-                        <td>9123456780</td>
-                        <td>Current</td>
-                        <td><span class="badge bg-danger">Inactive</span></td>
-                        <td>
-                            <a href="customer-account-details.php" class="btn btn-sm btn-outline-primary">View</a>
-                            <a href="update-customer.php" class="btn btn-sm btn-outline-secondary">Edit</a>
-                            <form action="delete-customer.php" method="POST" class="d-inline" onsubmit="return confirm('Delete this customer?');">
-                                <input type="hidden" name="id" value="2">
-                                <input type="hidden" name="csrf_token" value="">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    <!-- <?php endforeach; ?> -->
+                    <?php endforeach; ?>
 
                 </tbody>
             </table>
