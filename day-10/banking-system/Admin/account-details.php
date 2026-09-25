@@ -56,7 +56,7 @@ $customer = $stmt->fetch(PDO::FETCH_ASSOC);
                 <span class="detail-label">Account Number</span>
                 <span>
                     <!-- masked span shows first 4 digits + asterisks; full span is hidden until toggled -->
-                    <span id="acc-masked" class="detail-value">SBI1 **** ****</span>
+                    <span id="acc-masked" class="detail-value">SBI***** </span>
                     <span id="acc-full" class="detail-value d-none">
                         <?php echo htmlspecialchars($customer['AccountNumber']); ?>
                     </span>

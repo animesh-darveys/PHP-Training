@@ -58,7 +58,7 @@ $customer = $stmt->fetch(PDO::FETCH_ASSOC);
             <div class="detail-row">
                 <span class="detail-label">Account Number</span>
                 <span>
-                    <span id="acc-masked" class="detail-value">SBI1 **** ****</span>
+                    <span id="acc-masked" class="detail-value">SBI ****** </span>
                     <span id="acc-full" class="detail-value d-none">
                         <?= $customer['AccountNumber'] ?>
                     </span>

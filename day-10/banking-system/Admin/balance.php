@@ -60,7 +60,7 @@ $customer = $stmt->fetch(PDO::FETCH_ASSOC);
             <div class="detail-row">
                 <span class="detail-label">Account Number</span>
                 <span>
-                    <span id="acc-masked" class="detail-value">SBI1 **** ****</span>
+                    <span id="acc-masked" class="detail-value">SBI******</span>
                     <span id="acc-full" class="detail-value d-none">
                         <?= $customer['AccountNumber'] ?>
                     </span>
@@ -79,7 +79,7 @@ $customer = $stmt->fetch(PDO::FETCH_ASSOC);
             </div>
 
              <div class="detail-row" style="border-bottom: none;">
-                <a class="btn btn-info m-auto" href="./account-details.php">Go to details page</a>
+                <a class="btn btn-info m-auto" href="./account-details.php?id=<?= $customer['CustomerID'] ?>">Go to details page</a>
             </div>
 
         </div>
@@ -90,12 +90,17 @@ $customer = $stmt->fetch(PDO::FETCH_ASSOC);
 function toggleAccountNumber() {
     const masked = document.getElementById('acc-masked');
     const full = document.getElementById('acc-full');
-    const btn = document.getElementById('toggle-acc');
+    const button = document.getElementById('toggle-acc');
 
-    const isHidden = full.classList.contains('d-none');
-    masked.classList.toggle('d-none', isHidden);
-    full.classList.toggle('d-none', !isHidden);
-    btn.textContent = isHidden ? 'Hide' : 'Show';
+    if (full.classList.contains('d-none')) {
+        full.classList.remove('d-none');
+        masked.classList.add('d-none');
+        button.textContent = 'Hide';
+    } else {
+        full.classList.add('d-none');
+        masked.classList.remove('d-none');
+        button.textContent = 'Show';
+    }
 }
 </script>
 
