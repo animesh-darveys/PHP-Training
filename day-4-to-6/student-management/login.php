@@ -26,10 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
       $csrfToken = $_POST['csrf_token'] ?? '';
 
-      if (
-          empty($csrfToken) ||
-          !hash_equals($_SESSION['csrf_token'], $csrfToken)
-      ) {
+      if (empty($csrfToken) ||!hash_equals($_SESSION['csrf_token'], $csrfToken)) {
           die("Invalid CSRF token");
       }
 
@@ -45,31 +42,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user && password_verify($password, $user['password'])) {
-
-
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['full_name'];
         $_SESSION['email'] = $user['email'];
         $session_id = session_regenerate_id(true);
-
         $_SESSION['uid'] = session_id();
-
-
         $cookieName = "username";
         $cookieValue = $user['full_name'];
         setcookie($cookieName, $cookieValue, time() + (86400 * 30), "/");
-
         $cookieName = "user_id";
         $cookieValue = $user['id'];
         setcookie($cookieName, $cookieValue, time() + (86400 * 30), "/");
-
         header('Location: student_list.php');
 
         exit;
 
     } else {
       $_SESSION['login_error'] = "Invalid email or password";
-
       header("Location: login.php");
       exit;
   }
@@ -105,7 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <label class="form-label">Password</label>
             <input type="password" class="form-control" name="password" required>
           </div>
-          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
           <button type="submit" class="btn btn-primary w-100">Login</button>
         </form>
       </div>

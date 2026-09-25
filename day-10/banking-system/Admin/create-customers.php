@@ -3,7 +3,10 @@ define('BASE_PATH', dirname(__DIR__));
 require_once BASE_PATH . '/config/db.php';
 require_once 'actions/create.php';
 
-if (empty($_SESSION['userid']) || empty($_SESSION['role'])) { header('Location: ../login.php'); exit; }
+if (empty($_SESSION['userid']) || empty($_SESSION['role'])) {
+    header('Location: ../login.php');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,31 +35,31 @@ if (empty($_SESSION['userid']) || empty($_SESSION['role'])) { header('Location: 
                     <div class="mb-3">
                         <label for="name" class="form-label">Full Name</label>
                         <input type="text" class="form-control" id="name" name="fullname" value="<?= htmlspecialchars($name) ?>">
-                        <span id="nameError" class="error <?= !empty($nameError) ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($nameError) ?></span>
+                        <span id="nameError" class="error <?= $nameError ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($nameError) ?></span>
                     </div>
 
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($email) ?>">
-                        <span id="emailError" class="error <?= !empty($emailError) ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($emailError) ?></span>
+                        <span id="emailError" class="error <?= $emailError ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($emailError) ?></span>
                     </div>
 
                     <div class="mb-3">
                         <label for="phone" class="form-label">Phone Number</label>
                         <input type="tel" class="form-control" id="phone" name="phone" placeholder="10-digit number" value="<?= htmlspecialchars($phone) ?>">
-                        <span id="phoneError" class="error <?= !empty($phoneError) ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($phoneError) ?></span>
+                        <span id="phoneError" class="error <?= $phoneError ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($phoneError) ?></span>
                     </div>
 
                     <div class="mb-3">
                         <label for="address" class="form-label">Address</label>
                         <textarea class="form-control" id="address" name="address" rows="2" style="resize: none;"><?= htmlspecialchars($address) ?></textarea></textarea>
-                        <span id="addressError" class="error <?= !empty($addressError) ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($addressError) ?></span>
+                        <span id="addressError" class="error <?= $addressError ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($addressError) ?></span>
                     </div>
 
                     <div class="mb-3">
                         <label for="dob" class="form-label">Date of Birth</label>
                         <input type="date" class="form-control" id="dob" name="dob" value="<?= htmlspecialchars($dob) ?>">
-                        <span id="dobError" class="error <?= !empty($dobError) ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($dobError) ?></span>
+                        <span id="dobError" class="error <?= $dobError ? 'show' : '' ?>" role="alert"><?= htmlspecialchars($dobError) ?></span>
                     </div>
 
                     <div class="mb-3">
@@ -73,7 +76,7 @@ if (empty($_SESSION['userid']) || empty($_SESSION['role'])) { header('Location: 
 
                     <button type="submit" class="btn btn-primary w-100">Create Customer</button>
                     <br>
-                    <a style="margin-inline: auto; display: block; width: 100px;" href="http://localhost/php-training/day-10/banking-system/admin/list-customer.php" class="btn">View List</a>
+                    <a class="btn mt-2 w-100 btn-secondary" style="margin-inline: auto; display: block; width: 100px;" href="http://localhost/php-training/day-10/banking-system/admin/list-customer.php" class="btn">View List</a>
 
                 </form>
 
