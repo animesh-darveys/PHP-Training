@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 require_once './config/db.php';
 
 if (!isset($_SESSION['userid']) && isset($_COOKIE['remember_token'])) {
@@ -197,92 +196,94 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
-    <!-- <script>
-const roleInput = document.querySelector("#role");
+    <script>
+        const roleInput = document.querySelector("#role");
 
-const roleError = document.querySelector("#roleError");
+        const roleError = document.querySelector("#roleError");
 
-const allowedRoles = ["admin", "customer"];
+        const allowedRoles = ["admin", "customer"];
 
-function validateRole() {
-    if (!roleInput) {
-        return true;
-    }
-    const role = roleInput.value.trim();
-    if (!allowedRoles.includes(role)) {
-        roleError.textContent = "Please select a valid role.";
-        roleError.classList.add("show");
-        return false;
-    }
-    roleError.textContent = "";
-    roleError.classList.remove("show");
-    return true;
-}
+        function validateRole() {
+            if (!roleInput) {
+                return true;
+            }
+            const role = roleInput.value.trim();
+            if (!allowedRoles.includes(role)) {
+                roleError.textContent = "Please select a valid role.";
+                roleError.classList.add("show");
+                return false;
+            }
+            roleError.textContent = "";
+            roleError.classList.remove("show");
+            return true;
+        }
 
-const usernameInput = document.querySelector("#username");
-const usernameError = document.querySelector("#usernameError");
-function validateUsername() {
-    if (!usernameInput) {
-        return true;
-    }
-    const username = usernameInput.value.trim();
-    if (username === "") {
-        usernameError.textContent = "Username / Account Number is required.";
-        usernameError.classList.add("show");
-        return false;
-    }
+        const usernameInput = document.querySelector("#username");
+        const usernameError = document.querySelector("#usernameError");
 
-    if (username.length < 3 || username.length > 50) {
-        usernameError.textContent =
-            "Username must be between 3 and 50 characters.";
-        usernameError.classList.add("show");
-        return false;
-    }
-    usernameError.textContent = "";
-    usernameError.classList.remove("show");
-    return true;
-}
+        function validateUsername() {
+            if (!usernameInput) {
+                return true;
+            }
+            const username = usernameInput.value.trim();
+            if (username === "") {
+                usernameError.textContent = "Username / Account Number is required.";
+                usernameError.classList.add("show");
+                return false;
+            }
 
-const passwordInput = document.querySelector("#password");
-const passwordError = document.querySelector("#passwordError");
-function validatePassword() {
-    if (!passwordInput) {
-        return true;
-    }
-    const password = passwordInput.value;
-    if (password === "") {
-        passwordError.textContent = "Password is required.";
-        passwordError.classList.add("show");
-        return false;
-    }
-    if (password.length < 6) {
-        passwordError.textContent = "Password must be at least 6 characters.";
-        passwordError.classList.add("show");
-        return false;
-    }
-    if (password.length > 100) {
-        passwordError.textContent = "Password cannot exceed 100 characters.";
-        passwordError.classList.add("show");
-        return false;
-    }
-    passwordError.textContent = "";
-    passwordError.classList.remove("show");
-    return true;
-}
+            if (username.length < 3 || username.length > 50) {
+                usernameError.textContent =
+                    "Username must be between 3 and 50 characters.";
+                usernameError.classList.add("show");
+                return false;
+            }
+            usernameError.textContent = "";
+            usernameError.classList.remove("show");
+            return true;
+        }
 
-const form = document.querySelector("#login-form");
-form.addEventListener("submit", function (event) {
-    event.preventDefault();
-    const isValidRole = validateRole();
-    const isValidUsername = validateUsername();
-    const isValidPassword = validatePassword();
+        const passwordInput = document.querySelector("#password");
+        const passwordError = document.querySelector("#passwordError");
 
-    if ( !isValidRole || !isValidUsername || !isValidPassword ) {
-        return;
-    }
-    form.submit();
-});
-</script> -->
+        function validatePassword() {
+            if (!passwordInput) {
+                return true;
+            }
+            const password = passwordInput.value;
+            if (password === "") {
+                passwordError.textContent = "Password is required.";
+                passwordError.classList.add("show");
+                return false;
+            }
+            if (password.length < 6) {
+                passwordError.textContent = "Password must be at least 6 characters.";
+                passwordError.classList.add("show");
+                return false;
+            }
+            if (password.length > 100) {
+                passwordError.textContent = "Password cannot exceed 100 characters.";
+                passwordError.classList.add("show");
+                return false;
+            }
+            passwordError.textContent = "";
+            passwordError.classList.remove("show");
+            return true;
+        }
+
+        const form = document.querySelector("#login-form");
+        form.addEventListener("submit", function(event) {
+            event.preventDefault();
+            const isValidRole = validateRole();
+            const isValidUsername = validateUsername();
+            const isValidPassword = validatePassword();
+
+            if (!isValidRole || !isValidUsername || !isValidPassword) {
+                return;
+            }
+            form.submit();
+        });
+    </script>
 </body>
 
 </html>
