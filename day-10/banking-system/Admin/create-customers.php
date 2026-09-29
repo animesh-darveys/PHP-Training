@@ -1,12 +1,6 @@
 <?php
-define('BASE_PATH', dirname(__DIR__));
-require_once BASE_PATH . '/config/db.php';
+require_once '../config/db.php';
 require_once 'actions/create.php';
-
-if (empty($_SESSION['userid']) || empty($_SESSION['role'])) {
-    header('Location: ../login.php');
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
