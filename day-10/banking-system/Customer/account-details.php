@@ -4,8 +4,7 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 if (empty($_SESSION['userid']) || empty($_SESSION['role'])) { header('Location: ../login.php'); exit; }
-define('BASE_PATH', dirname(__DIR__));
-require_once BASE_PATH . '/config/db.php';
+require_once '../config/db.php';
 
 if (strtolower($_SESSION['role']) !== 'customer') { 
     http_response_code(403);

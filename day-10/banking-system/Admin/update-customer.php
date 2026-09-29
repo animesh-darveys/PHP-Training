@@ -3,8 +3,7 @@ session_start();
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
-define('BASE_PATH', dirname(__DIR__));
-require_once BASE_PATH . '/config/db.php';
+require_once '../config/db.php';
 if (empty($_SESSION['userid']) || empty($_SESSION['role'])) { header('Location: ../login.php'); exit; }
 $id = $_GET['id'];
 $sql = "SELECT ci.CustomerID, ci.AccountNumber, ci.FullName, ci.Email, ci.PhoneNumber, 
@@ -93,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $customer['AccountType']  = $accountType;
     $customer['BalanceAmount']= $balance;
     $customer['Status']       = $status;
+
 }
 ?>
 <!DOCTYPE html>
@@ -110,7 +110,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="card-body p-4">
 
             <h3 class="text-center mb-4">Update Customer</h3>
-
             <form action="" method="POST">
 
                 <div class="mb-3">

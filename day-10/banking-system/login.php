@@ -1,11 +1,51 @@
 <?php
 session_start();
 
+require_once './config/db.php';
+
+if (!isset($_SESSION['userid']) && isset($_COOKIE['remember_token'])) {
+
+    $tokenHash = hash(
+        'sha256',
+        $_COOKIE['remember_token']
+    );
+
+    $stmt = $conn->prepare("
+        SELECT UserID, Username, Role
+        FROM users
+        WHERE remember_token = :token
+        LIMIT 1
+    ");
+
+    $stmt->execute([
+        ':token' => $tokenHash
+    ]);
+
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user) {
+
+        session_regenerate_id(true);
+
+        $_SESSION['userid'] = $user['UserID'];
+        $_SESSION['username'] = $user['Username'];
+        $_SESSION['role'] = $user['Role'];
+
+        if (strtolower($user['Role']) === 'admin') {
+            header("Location: ./admin/list-customer.php");
+            exit;
+        }
+
+        if (strtolower($user['Role']) === 'customer') {
+            header("Location: ./customer/account-details.php");
+            exit;
+        }
+    }
+}
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
-
-require_once './config/db.php';
 
 $role = '';
 $username = '';
@@ -64,6 +104,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['userid'] = $user['UserID'];
             $_SESSION['username'] = $user['Username'];
             $_SESSION['role'] = $user['Role'];
+
+            $rememberToken = bin2hex(random_bytes(32));
+
 
             if (strtolower($user['Role']) === 'admin') {
                 header("Location: ./admin/list-customer.php");

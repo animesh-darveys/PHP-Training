@@ -1,7 +1,6 @@
 <?php
 session_start();
-define('BASE_PATH', dirname(__DIR__));
-require_once BASE_PATH . '/config/db.php';
+require_once '../config/db.php';
 if (empty($_SESSION['userid']) || empty($_SESSION['role'])) { header('Location: ../login.php'); exit; }
 if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
     die('Invalid CSRF token.');
