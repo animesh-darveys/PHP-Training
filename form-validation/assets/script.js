@@ -207,7 +207,7 @@ function validatePhoto() {
 
     const file = profileInput.files[0];
 
-    const maxSize = 1 * 1024 * 1024;
+    const maxSize = 2 * 1024 * 1024;
 
     if (file.size > maxSize) {
         profileError.textContent = 'Max file size should be 2MB';

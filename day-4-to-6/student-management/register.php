@@ -113,6 +113,10 @@ if (empty($_SESSION["csrf_token"])) {
                     <div class="mb-3">
                         <label class="form-label" required>Password</label>
                         <input type="password" name="password" id="password" class="form-control" required>
+
+                        <div class="invalid-feedback d-block text-danger small">
+                            <?= htmlspecialchars($errors["studentPassword"] ?? "") ?>
+                        </div>
                     </div>
 
                     

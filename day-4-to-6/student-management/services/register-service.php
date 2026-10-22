@@ -36,12 +36,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $studentEmail,
         $studentDOB,
         $studentCourse,
+        $studentPassword,
         $_FILES["photo"] ?? null
+
     );
 
     if (empty($errors)) {
-        
-        require_once "config/database.php";
 
         $hashedPassword = password_hash($studentPassword,PASSWORD_DEFAULT);
 

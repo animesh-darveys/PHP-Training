@@ -1,7 +1,6 @@
 <?php
 require_once "config/database.php";
 require_once "classes/Student.php";
-require_once "classes/Create.php";
 
 $studentName = "";
 $studentEmail = "";
@@ -10,8 +9,6 @@ $studentCourse = "";
 
 $database = new Database();
 $conn = $database->getConnection();
-
-$create = new Create($conn);
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
@@ -37,7 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $studentEmail,
         $studentDOB,
         $studentCourse,
-        $photo
+        $photo,
+        $conn
     );
 
     $errors = $student->validate();
@@ -48,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $profilePhoto = $student->uploadPhoto();
 
-        $result = $create->insertStudent(
+        $result = $student->create(
             $studentName,
             $studentEmail,
             $studentDOB,

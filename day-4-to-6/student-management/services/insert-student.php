@@ -13,7 +13,7 @@ function insertStudent(
             (full_name, email, password, dob, course, profile_photo)
             VALUES
             (:full_name, :email, :password, :dob, :course, :profile_photo)";
-
+            
     $stmt = $conn->prepare($sql);
 
     $data = [

@@ -1,0 +1,86 @@
+<?php
+session_start();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+if (empty($_SESSION['userid']) || empty($_SESSION['role'])) { header('Location: ../login.php'); exit; }
+require_once '../config/db.php';
+
+require_once './classes/Customer.php';
+
+$customers = [];
+
+try {
+    $customerModel = new Customer($conn);
+    $customers = $customerModel->getAll();
+
+} catch (PDOException $e) {
+    $_SESSION['error'] = 'Unable to fetch customers. Please try again.';
+    error_log($e->getMessage());
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banking System - Customer List</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">Customer List</h3>
+        <div>
+            <a href="../logout.php" class="btn btn-danger">Log Out</a>
+            <a href="create-customer.php" class="btn btn-primary">+ Add Customer</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Account Number</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Account Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($customers as $i => $customer): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($customer['CustomerID']); ?></td>
+                        <td><?php echo htmlspecialchars($customer['AccountNumber']); ?></td>
+                        <td><?php echo htmlspecialchars($customer['FullName']); ?></td>
+                        <td><?php echo htmlspecialchars($customer['Email']); ?></td>
+                        <td><?php echo htmlspecialchars($customer['PhoneNumber']); ?></td>
+                        <td> <?php echo ucfirst($customer['AccountType']); ?></td>
+                        <td> <?php echo ucfirst($customer['Status']); ?></td>
+                        <td>
+                            <a href="account-details.php?id=<?= $customer['CustomerID'] ?>" class="btn btn-sm btn-outline-primary">View</a>
+                            <a href="update-customer.php?id=<?= $customer['CustomerID'] ?>" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <form action="delete-customer.php" method="POST" class="d-inline" onsubmit="return confirm('Delete this customer?');">
+                                <input type="hidden" name="id" value="<?= $customer['CustomerID'] ?>">
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

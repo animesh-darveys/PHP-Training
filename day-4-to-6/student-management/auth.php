@@ -35,6 +35,8 @@ if (isset($_COOKIE['user_id'])) {
 
         return;
     }
+}else{
+    return;
 }
 
 header("Location: login.php");
