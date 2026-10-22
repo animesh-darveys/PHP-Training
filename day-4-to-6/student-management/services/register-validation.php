@@ -5,6 +5,7 @@ function validateStudent(
     string $studentEmail,
     string $studentDOB,
     string $studentCourse,
+    string $studentPassword,
     array $photo
     ): array {
 
@@ -15,6 +16,8 @@ function validateStudent(
         "data-science",
         "cyber-security"
     ];
+
+
 
     // Validate Student Name
     if (empty($studentName)) {
@@ -72,6 +75,16 @@ function validateStudent(
             "Invalid course selected.";
     }
 
+    // Validate Student Password
+    if (empty($studentPassword)) {
+
+        $errors["studentPassword"] = "Password is required.";
+
+    } elseif (strlen($studentPassword) < 8) {
+
+        $errors["studentPassword"] =
+            "Student name should be greater than 8 characters.";
+    }
 
     // Validate Image
     if (

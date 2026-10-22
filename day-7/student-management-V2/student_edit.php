@@ -1,6 +1,6 @@
   <?php
     require_once "config/database.php";
-    require_once "classes/Edit.php";
+    require_once "classes/Student.php";
 
     $database = new Database();
 
@@ -12,7 +12,7 @@
       $student_id = $_GET['id'];
     }
 
-    $result = $edit->findById($student_id);
+    $result = $edit->edit($student_id);
   ?>
 <!DOCTYPE html>
 <html lang="en">

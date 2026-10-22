@@ -77,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <div class="container" style="max-width: 400px;">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title mb-3 text-center">Login</h4>
+        <h4 class="card-title mb-3 text-center">Admin Login</h4>
 
         <?php if ($loginError): ?>
             <div class="alert alert-danger">

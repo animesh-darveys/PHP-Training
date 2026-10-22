@@ -140,7 +140,7 @@ $_SESSION['password'] = "Animesh@321";
             <button type="submit" class="button">Submit</button>
         </form>
     </div>
-    <script src="assets/script.js"></script>
+    <!-- <script src="assets/script.js"></script> -->
 </body>
 
 </html>
