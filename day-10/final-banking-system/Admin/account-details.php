@@ -1,14 +1,9 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/auth.php';
 
 require_once '../config/db.php';
 require_once './classes/Customer.php';
-
-if (empty($_SESSION['userid']) || empty($_SESSION['role'])) {
-    header('Location: ../login.php');
-    exit;
-}
 
 // Get customer ID.
 $id = $_GET['id'] ?? '';

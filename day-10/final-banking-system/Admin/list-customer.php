@@ -1,9 +1,8 @@
 <?php
-session_start();
+require_once __DIR__ . '/auth.php';
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
-if (empty($_SESSION['userid']) || empty($_SESSION['role'])) { header('Location: ../login.php'); exit; }
 require_once '../config/db.php';
 
 require_once './classes/Customer.php';
