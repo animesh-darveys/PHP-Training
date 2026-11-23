@@ -10,7 +10,7 @@ if (!isset($_SESSION['userid']) && isset($_COOKIE['remember_token'])) {
     );
 
     $stmt = $conn->prepare("
-        SELECT UserID, Username, Role
+        SELECT UserID, Email, Role
         FROM users
         WHERE remember_token = :token
         LIMIT 1
@@ -27,7 +27,7 @@ if (!isset($_SESSION['userid']) && isset($_COOKIE['remember_token'])) {
         session_regenerate_id(true);
 
         $_SESSION['userid'] = $user['UserID'];
-        $_SESSION['username'] = $user['Username'];
+        $_SESSION['email'] = $user['Email'];
         $_SESSION['role'] = $user['Role'];
 
         if (strtolower($user['Role']) === 'admin') {
@@ -47,11 +47,12 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 $role = '';
-$username = '';
+$email = '';
 $password = '';
 $roleError = '';
-$usernameError = '';
+$emailError = '';
 $passwordError = '';
+$loginError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
@@ -60,54 +61,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $role = trim($_POST['role'] ?? '');
-    $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
     if ($role === '') {
         $roleError = 'Please Select Role';
     }
-    if ($username === '') {
-        $usernameError = 'Please Enter Username';
+    if ($email === '') {
+        $emailError = 'Please Enter Email';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $emailError = 'Please Enter a valid Email';
     }
     if ($password === '') {
         $passwordError = 'Please Enter Password';
     }
 
-    if (empty($roleError) && empty($usernameError) && empty($passwordError)) {
+    if (empty($roleError) && empty($emailError) && empty($passwordError)) {
         try {
-            $sql = "SELECT u.UserID, u.Role, u.Username, u.Password, ci.CustomerID
+            $sql = "SELECT u.UserID, u.Role, u.Email, u.Password, ci.CustomerID, ci.FullName
                     FROM users u
                     LEFT JOIN customer_info ci ON u.UserID = ci.UserID
-                    WHERE u.Username = :username
+                    WHERE u.Email = :email
                     LIMIT 1";
 
             $stmt = $conn->prepare($sql);
             $stmt->execute([
-                ':username' => $username
+                ':email' => $email
             ]);
 
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!$user) {
-                die('Invalid User ID or password.');
+            // Galat email, galat password ya galat role: teeno par ek hi message,
+            // taaki kisi ko pata na chale ki kaunsa email registered hai.
+            if (
+                !$user ||
+                !password_verify($password, $user['Password']) ||
+                strtolower($role) !== strtolower($user['Role'])
+            ) {
+                $loginError = 'Invalid email or password.';
             }
-            if (strtolower($user['Role']) === 'admin') {
-                if (!hash_equals((string)$user['Password'], $password)) {
-                    die('Invalid User ID or password.');
-                }
-            } else {
-                if (!password_verify($password, $user['Password'])) {
-                    die('Invalid User ID or password.');
-                }
-            }
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            $loginError = 'Something went wrong. Please try again.';
+        }
 
-            if (!empty($role) && strtolower($role) !== strtolower($user['Role'])) {
-
-                die('Invalid role.');
-            }
-
+        if ($loginError === '') {
             $_SESSION['userid'] = $user['UserID'];
-            $_SESSION['username'] = $user['Username'];
+            $_SESSION['email'] = $user['Email'];
+            $_SESSION['name'] = $user['FullName'] ?? 'Admin';
             $_SESSION['role'] = $user['Role'];
             $_SESSION['CustomerID'] = $user['CustomerID'];
 
@@ -117,15 +118,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (strtolower($user['Role']) === 'admin') {
                 header("Location: ./admin/list-customer.php");
                 exit;
-            } elseif (strtolower($user['Role']) === 'customer') {
-                header("Location: ./customer/account-details.php");
-                exit;
-            } else {
-                die('Unknown user role.');
             }
-        } catch (PDOException $e) {
 
-            die("Database error.");
+            header("Location: ./customer/account-details.php");
+            exit;
         }
     }
 }
@@ -164,6 +160,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <h3 class="text-center mb-4">Login</h3>
 
+                <?php if ($loginError): ?>
+                    <div class="alert alert-danger"><?= htmlspecialchars($loginError) ?></div>
+                <?php endif; ?>
+
                 <form action="" method="POST" id="login-form">
 
                     <div class="mb-3">
@@ -179,10 +179,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" value="<?= htmlspecialchars($username) ?>" class="form-control" id="username" name="username" placeholder="Enter Username">
-                        <div id="usernameError" class="error <?= $usernameError ? 'show' : '' ?>">
-                            <?= htmlspecialchars($usernameError) ?>
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" value="<?= htmlspecialchars($email) ?>" class="form-control" id="email" name="email" placeholder="Enter Email">
+                        <div id="emailError" class="error <?= $emailError ? 'show' : '' ?>">
+                            <?= htmlspecialchars($emailError) ?>
                         </div>
                     </div>
 
@@ -227,28 +227,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return true;
         }
 
-        const usernameInput = document.querySelector("#username");
-        const usernameError = document.querySelector("#usernameError");
+        const emailInput = document.querySelector("#email");
+        const emailError = document.querySelector("#emailError");
 
-        function validateUsername() {
-            if (!usernameInput) {
+        function validateEmail() {
+            if (!emailInput) {
                 return true;
             }
-            const username = usernameInput.value.trim();
-            if (username === "") {
-                usernameError.textContent = "Username / Account Number is required.";
-                usernameError.classList.add("show");
+            const email = emailInput.value.trim();
+            if (email === "") {
+                emailError.textContent = "Email is required.";
+                emailError.classList.add("show");
                 return false;
             }
 
-            if (username.length < 3 || username.length > 50) {
-                usernameError.textContent =
-                    "Username must be between 3 and 50 characters.";
-                usernameError.classList.add("show");
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                emailError.textContent = "Please enter a valid email address.";
+                emailError.classList.add("show");
                 return false;
             }
-            usernameError.textContent = "";
-            usernameError.classList.remove("show");
+            emailError.textContent = "";
+            emailError.classList.remove("show");
             return true;
         }
 
@@ -284,10 +283,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         form.addEventListener("submit", function(event) {
             event.preventDefault();
             const isValidRole = validateRole();
-            const isValidUsername = validateUsername();
+            const isValidEmail = validateEmail();
             const isValidPassword = validatePassword();
 
-            if (!isValidRole || !isValidUsername || !isValidPassword) {
+            if (!isValidRole || !isValidEmail || !isValidPassword) {
                 return;
             }
             form.submit();

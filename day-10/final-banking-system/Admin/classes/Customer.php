@@ -92,12 +92,33 @@ class Customer
         return $namePart . $year;
     }
 
+    // Check whether the email is already used by another user.
+    private function emailExists(?int $excludeUserId = null): bool
+    {
+        $sql = "SELECT 1 FROM users WHERE Email = :email";
+        $params = ['email' => $this->email];
+
+        if ($excludeUserId !== null) {
+            $sql .= " AND UserID <> :userId";
+            $params['userId'] = $excludeUserId;
+        }
+
+        $stmt = $this->conn->prepare($sql . " LIMIT 1");
+        $stmt->execute($params);
+
+        return (bool) $stmt->fetchColumn();
+    }
+
     public function create(): int
     {
         $errors = $this->validate();
 
         if (!empty($errors)) {
             throw new InvalidArgumentException('Invalid customer data.');
+        }
+
+        if ($this->emailExists()) {
+            throw new InvalidArgumentException('This email is already registered.');
         }
 
         $this->conn->beginTransaction();
@@ -107,14 +128,14 @@ class Customer
                 ? $this->password
                 : $this->generatePassword();
 
-            $sql = "INSERT INTO users (Role, Username, Password)
-                    VALUES (:role, :username, :password)";
+            $sql = "INSERT INTO users (Role, Email, Password)
+                    VALUES (:role, :email, :password)";
 
             $stmt = $this->conn->prepare($sql);
 
             $stmt->execute([
                 'role' => $this->role,
-                'username' => $this->name,
+                'email' => $this->email,
                 'password' => password_hash($password, PASSWORD_DEFAULT)
             ]);
 
@@ -124,12 +145,12 @@ class Customer
 
             $sql = "INSERT INTO customer_info
                     (
-                        UserID, AccountNumber, FullName, Email,
+                        UserID, AccountNumber, FullName,
                         PhoneNumber, Address, DateOfBirth, AccountType
                     )
                     VALUES
                     (
-                        :userId, :accountNumber, :name, :email,
+                        :userId, :accountNumber, :name,
                         :phone, :address, :dob, :accountType
                     )";
 
@@ -139,7 +160,6 @@ class Customer
                 'userId' => $userId,
                 'accountNumber' => $accountNumber,
                 'name' => $this->name,
-                'email' => $this->email,
                 'phone' => $this->phone,
                 'address' => $this->address,
                 'dob' => $this->dob,
@@ -179,7 +199,7 @@ class Customer
                     ci.UserID,
                     ci.AccountNumber,
                     ci.FullName,
-                    ci.Email,
+                    u.Email,
                     ci.PhoneNumber,
                     ci.Address,
                     ci.DateOfBirth,
@@ -187,6 +207,8 @@ class Customer
                     ci.Status,
                     ab.BalanceAmount
                 FROM customer_info ci
+                JOIN users u
+                    ON ci.UserID = u.UserID
                 LEFT JOIN account_balance ab
                     ON ci.CustomerID = ab.CustomerID
                 WHERE ci.CustomerID = :id";
@@ -203,7 +225,7 @@ class Customer
                     ci.CustomerID,
                     ci.AccountNumber,
                     ci.FullName,
-                    ci.Email,
+                    u.Email,
                     ci.PhoneNumber,
                     ci.Address,
                     ci.DateOfBirth,
@@ -211,6 +233,8 @@ class Customer
                     ci.Status,
                     ab.BalanceAmount
                 FROM customer_info ci
+                JOIN users u
+                    ON ci.UserID = u.UserID
                 LEFT JOIN account_balance ab
                     ON ci.CustomerID = ab.CustomerID
                 ORDER BY ci.CustomerID DESC";
@@ -240,12 +264,34 @@ class Customer
             throw new InvalidArgumentException('Invalid account status.');
         }
 
+        $existing = $this->find($id);
+
+        if (!$existing) {
+            throw new RuntimeException('Customer not found.');
+        }
+
+        $userId = (int) $existing['UserID'];
+
+        if ($this->emailExists($userId)) {
+            throw new InvalidArgumentException('This email is already registered.');
+        }
+
         $this->conn->beginTransaction();
 
         try {
+            $sql = "UPDATE users
+                    SET Email = :email
+                    WHERE UserID = :userId";
+
+            $stmt = $this->conn->prepare($sql);
+
+            $stmt->execute([
+                'email' => $this->email,
+                'userId' => $userId
+            ]);
+
             $sql = "UPDATE customer_info
                     SET FullName = :name,
-                        Email = :email,
                         PhoneNumber = :phone,
                         Address = :address,
                         DateOfBirth = :dob,
@@ -257,7 +303,6 @@ class Customer
 
             $stmt->execute([
                 'name' => $this->name,
-                'email' => $this->email,
                 'phone' => $this->phone,
                 'address' => $this->address,
                 'dob' => $this->dob,
@@ -265,10 +310,6 @@ class Customer
                 'status' => $status,
                 'id' => $id
             ]);
-
-            if ($stmt->rowCount() === 0 && !$this->find($id)) {
-                throw new RuntimeException('Customer not found.');
-            }
 
             $sql = "UPDATE account_balance
                     SET BalanceAmount = :balance,
@@ -348,7 +389,7 @@ class Customer
                     ci.CustomerID,
                     ci.AccountNumber,
                     ci.FullName,
-                    ci.Email,
+                    u.Email,
                     ci.PhoneNumber,
                     ci.Address,
                     ci.DateOfBirth,
@@ -357,6 +398,8 @@ class Customer
                     ab.BalanceAmount,
                     ci.CreatedDate
                 FROM customer_info ci
+                JOIN users u
+                    ON ci.UserID = u.UserID
                 LEFT JOIN account_balance ab
                     ON ci.CustomerID = ab.CustomerID
                 WHERE ci.CustomerID = :id";
@@ -379,6 +422,8 @@ class Customer
                     ab.BalanceAmount,
                     ab.LastUpdatedDate
                 FROM customer_info ci
+                JOIN users u
+                    ON ci.UserID = u.UserID
                 LEFT JOIN account_balance ab
                     ON ci.CustomerID = ab.CustomerID
                 WHERE ci.CustomerID = :id";

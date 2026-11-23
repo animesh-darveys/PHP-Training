@@ -18,27 +18,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die('Invalid CSRF token.');
     }
 
-    $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
 
-    if (empty($username)) {
-        $error = 'Please enter your username or email.';
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Please enter a valid email.';
     } else {
         try {
-            $sql = "SELECT u.UserID, u.Username, c.Email
+            $sql = "SELECT u.UserID, u.Email, c.FullName
                 FROM users u
                 JOIN customer_info c ON u.UserID = c.UserID
-                WHERE u.Username = :username OR c.Email = :username
+                WHERE u.Email = :email
                 LIMIT 1";
             $stmt = $conn->prepare($sql);
-            $stmt->execute([':username' => $username]);
+            $stmt->execute([':email' => $email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!$user) {
-                $error = 'No account found with that username/email.';
-            } else {
+            // Email registered ho ya na ho, user ko hamesha yahi message dikhega,
+            // taaki is page se pata na chale ki kaunsa email registered hai.
+            $message = 'If this email is registered, a new password has been sent to it.';
+
+            if ($user) {
 
                 $newPassword = bin2hex(random_bytes(5)); // e.g. "a1b2c3d4e5"
                 $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+                // Password tabhi save ho jab email chala jaaye, warna user lock ho jaayega.
+                $conn->beginTransaction();
 
                 $updateSql = "UPDATE users SET Password = :password WHERE UserID = :userid";
                 $updateStmt = $conn->prepare($updateSql);
@@ -61,25 +66,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $mail->Port       = $env['MAIL_PORT'];
 
                     $mail->setFrom('animesh.gupta@darveys.com', 'Banking System');
-                    $mail->addAddress($user['Email'], $user['Username']);
+                    $mail->addAddress($user['Email'], $user['FullName']);
 
                     $mail->isHTML(true);
                     $mail->Subject = 'Your New Password';
-                    $mail->Body    = "Hi {$user['Username']},<br><br>
+                    $mail->Body    = "Hi {$user['FullName']},<br><br>
                                       Your password has been reset. Your new password is: <b>{$newPassword}</b><br><br>
                                       Please log in and change your password immediately for security.<br><br>
                                       Regards,<br>Banking System";
 
                     $mail->send();
-                    $message = 'A new password has been sent to your registered email.';
+                    $conn->commit();
 
                 } catch (Exception $e) {
-                    $error = "Password updated but email could not be sent. Error: {$mail->ErrorInfo}";
+                    // Mail nahi gaya: purana password hi rehne do, error sirf log mein.
+                    $conn->rollBack();
+                    error_log('Password reset mail failed: ' . $mail->ErrorInfo);
                 }
             }
 
         } catch (PDOException $e) {
-            $error = "Database error: " . $e->getMessage();
+            if ($conn->inTransaction()) {
+                $conn->rollBack();
+            }
+            error_log($e->getMessage());
+            $message = '';
+            $error = 'Something went wrong. Please try again.';
         }
     }
 }
@@ -112,8 +124,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form action="" method="POST">
 
                 <div class="mb-3">
-                    <label for="username" class="form-label">Username or Email</label>
-                    <input type="text" class="form-control" id="username" name="username" placeholder="Enter username or email" required>
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your registered email" required>
                 </div>
 
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
